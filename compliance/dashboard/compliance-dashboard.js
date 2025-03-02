@@ -1,3 +1,7 @@
+// === WATCHER HEADER START ===
+// File: todo-system/compliance/dashboard/compliance-dashboard.js
+// Managed by file watcher
+// === WATCHER HEADER END ===
 /**
  * Todo App Compliance Dashboard
  * 

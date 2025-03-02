@@ -1,3 +1,7 @@
+# === WATCHER HEADER START ===
+# File: todo-system/compliance/scripts/aggregate_jsonld_compliance.sh
+# Managed by file watcher
+# === WATCHER HEADER END ===
 #!/bin/bash
 set -e
 
