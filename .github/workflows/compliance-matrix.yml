@@ -50,7 +50,7 @@ jobs:
       - name: 🌟 Validate Against JSON Schema
         run: |
           if [ -f "schema/requirements-schema.json" ]; then
-            ajv validate -s schema/requirements-schema.json -d requirements/requirements.jsonld --spec=draft2019 --format=full
+            ajv validate -s schema/requirements-schema.json -d requirements/requirements.jsonld
             echo "Schema validation successful"
           else
             echo "Warning: requirements-schema.json not found, skipping schema validation"
