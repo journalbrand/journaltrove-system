@@ -6,13 +6,14 @@ cd "$(dirname "$0")"
 # Define server port
 PORT=8000
 
-echo "🔍 Checking for GitHub CLI..."
-if ! command -v gh &> /dev/null; then
-    echo "⚠️ GitHub CLI not found. Please install it to download the latest compliance matrix."
-    echo "Visit: https://cli.github.com/"
-    echo "Continuing with existing files (if any)..."
-else
-    echo "✅ GitHub CLI found. Downloading latest compliance matrix..."
+# Function to download the latest compliance matrix
+download_compliance_matrix() {
+    echo "🔄 $(date +"%H:%M:%S") - Refreshing compliance matrix data..."
+    
+    if ! command -v gh &> /dev/null; then
+        echo "⚠️ GitHub CLI not found. Cannot refresh data."
+        return 1
+    fi
     
     # Create necessary directories
     mkdir -p compliance/dashboard
@@ -28,52 +29,70 @@ else
         TEMP_DIR=$(mktemp -d)
         
         # Download the artifact
-        gh run download $WORKFLOW_RUN_ID --name=compliance-matrix-jsonld --dir="$TEMP_DIR"
+        gh run download $WORKFLOW_RUN_ID --name=compliance-matrix-jsonld --dir="$TEMP_DIR" > /dev/null 2>&1
         
         if [ -f "$TEMP_DIR/compliance_matrix.jsonld" ]; then
             # Copy to both locations where it might be expected
             cp "$TEMP_DIR/compliance_matrix.jsonld" compliance/dashboard/compliance_matrix.jsonld
             cp "$TEMP_DIR/compliance_matrix.jsonld" compliance/reports/compliance_matrix.jsonld
-            echo "✅ Compliance matrix downloaded and installed successfully!"
+            echo "✅ Compliance matrix refreshed successfully!"
             
-            # Clean up temp directory
+            # Clean up temporary directory
             rm -rf "$TEMP_DIR"
         else
-            echo "⚠️ Could not find compliance_matrix.jsonld in the downloaded artifact!"
-            # List the contents of the temp dir to debug
-            echo "Contents of downloaded artifact:"
-            ls -la "$TEMP_DIR"
-            
             # Check if it's in a subdirectory
             if [ -d "$TEMP_DIR/compliance-matrix-jsonld" ]; then
-                echo "Found subdirectory, copying files..."
                 cp "$TEMP_DIR/compliance-matrix-jsonld/compliance_matrix.jsonld" compliance/dashboard/compliance_matrix.jsonld
                 cp "$TEMP_DIR/compliance-matrix-jsonld/compliance_matrix.jsonld" compliance/reports/compliance_matrix.jsonld
-                echo "✅ Compliance matrix installed from subdirectory!"
+                echo "✅ Compliance matrix refreshed successfully!"
+            else
+                echo "⚠️ Could not find compliance_matrix.jsonld in the downloaded artifact!"
             fi
             
-            # Clean up temp directory
+            # Clean up temporary directory
             rm -rf "$TEMP_DIR"
         fi
     else
         echo "⚠️ No completed workflow runs found."
     fi
-fi
+    
+    # Ensure the requirements file is accessible to the dashboard
+    if [ -f "requirements/requirements.jsonld" ]; then
+        # Create a directory for requirements and copy the file
+        mkdir -p compliance/requirements/
+        cp requirements/requirements.jsonld compliance/requirements/
+    fi
+}
 
-# Ensure the requirements file is accessible to the dashboard
-echo "🔄 Setting up requirements file for dashboard..."
-if [ -f "requirements/requirements.jsonld" ]; then
-    # Create a symbolic link to the requirements file in the dashboard directory
-    mkdir -p compliance/requirements/
-    cp requirements/requirements.jsonld compliance/requirements/
-    echo "✅ Requirements file linked for dashboard access"
+# Initial check for GitHub CLI
+echo "🔍 Checking for GitHub CLI..."
+if ! command -v gh &> /dev/null; then
+    echo "⚠️ GitHub CLI not found. Please install it to download the latest compliance matrix."
+    echo "Visit: https://cli.github.com/"
+    echo "Continuing with existing files (if any)..."
 else
-    echo "⚠️ Requirements file not found at requirements/requirements.jsonld"
+    echo "✅ GitHub CLI found."
+    # Initial download of compliance matrix
+    download_compliance_matrix
 fi
 
+# Start the auto-refresh process in the background
+auto_refresh_compliance_matrix() {
+    while true; do
+        sleep 60
+        download_compliance_matrix
+    done
+}
+auto_refresh_compliance_matrix &
+REFRESH_PID=$!
+
+# Trap to kill the background auto-refresh process when the script exits
+trap 'echo "Shutting down auto-refresh process..."; kill $REFRESH_PID 2>/dev/null; exit' INT TERM EXIT
+
+echo "⏱️ Auto-refresh is enabled - compliance matrix will update every 60 seconds"
 echo "🌐 Starting Compliance Dashboard server on http://localhost:$PORT"
 echo "📊 Dashboard will be available at: http://localhost:$PORT/compliance/dashboard/"
-echo "⚠️ Press Ctrl+C to stop the server"
+echo "⚠️ Press Ctrl+C to stop the server and auto-refresh"
 
 # Open the dashboard in the default browser (after a short delay to let the server start)
 (sleep 1 && open "http://localhost:$PORT/compliance/dashboard/") &
