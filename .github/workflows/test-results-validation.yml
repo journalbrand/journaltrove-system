@@ -24,8 +24,10 @@ jobs:
         with:
           node-version: 18
       
-      - name: 📦 Install ajv-cli for JSON Schema validation
-        run: npm install -g ajv-cli
+      - name: 📦 Install dependencies for JSON-LD validation
+        run: |
+          npm init -y
+          npm install ajv ajv-formats
         
       - name: 📥 Download Compliance Matrix
         uses: actions/download-artifact@v4
@@ -44,7 +46,7 @@ jobs:
             
             # Validate compliance matrix against schema (if we have one)
             if [ -f "schema/compliance-matrix-schema.json" ]; then
-              ajv validate -s schema/compliance-matrix-schema.json -d compliance/reports/compliance_matrix.jsonld
+              node scripts/validate-jsonld.js schema/compliance-matrix-schema.json compliance/reports/compliance_matrix.jsonld
               echo "Compliance matrix schema validation successful"
             else
               echo "No schema found for compliance matrix, skipping schema validation"

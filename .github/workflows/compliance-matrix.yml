@@ -24,32 +24,17 @@ jobs:
         with:
           node-version: 18
       
-      - name: 📦 Install ajv-cli for JSON Schema validation
+      - name: 📦 Install dependencies for JSON-LD validation
         run: |
-          npm install -g ajv-cli
-          # Create a formats.js file that will be used to add format support
-          cat > formats.js << EOF
-          module.exports = function(ajv) {
-            // Define date-time format validation
-            ajv.addFormat("date-time", {
-              validate: (dateTimeString) => {
-                try {
-                  const date = new Date(dateTimeString);
-                  return !isNaN(date.getTime());
-                } catch (e) {
-                  return false;
-                }
-              }
-            });
-          }
-          EOF
+          npm init -y
+          npm install ajv ajv-formats
       
       - name: 🔍 Validate JSON-LD Requirements Format
         run: |
           if [ -f "requirements/requirements.jsonld" ]; then
             # Validate JSON-LD format
             jq empty requirements/requirements.jsonld
-            echo "System requirements validation successful"
+            echo "System requirements JSON format validation successful"
           else
             echo "Error: system requirements.jsonld not found"
             exit 1
@@ -58,7 +43,7 @@ jobs:
           if [ -f "requirements/context/requirements-context.jsonld" ]; then
             # Validate context schema
             jq empty requirements/context/requirements-context.jsonld
-            echo "Requirements context validation successful"
+            echo "Requirements context JSON format validation successful"
           else
             echo "Error: requirements-context.jsonld not found"
             exit 1
@@ -67,10 +52,8 @@ jobs:
       - name: 🌟 Validate Against JSON Schema
         run: |
           if [ -f "schema/requirements-schema.json" ]; then
-            # Create a custom formats file
-            
-            # Run validation with correct parameters
-            ajv -c formats.js validate -s schema/requirements-schema.json -d requirements/requirements.jsonld
+            # Run JSON-LD validation using our custom script
+            node scripts/validate-jsonld.js schema/requirements-schema.json requirements/requirements.jsonld
             echo "Schema validation successful"
           else
             echo "Warning: requirements-schema.json not found, skipping schema validation"
