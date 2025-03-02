@@ -2,10 +2,10 @@ name: 🧪 Test Results Validation
 
 on:
   workflow_dispatch:  # Manual trigger
-  push:
-    branches: [ main ]
-    paths:
-      - 'tests/**'
+  workflow_run:
+    workflows: ["🌹 Compliance Matrix Generation"]
+    types:
+      - completed
 
 jobs:
   validate-test-results:
@@ -27,25 +27,52 @@ jobs:
       - name: 📦 Install ajv-cli for JSON Schema validation
         run: npm install -g ajv-cli
         
-      - name: 🔍 Check for Test Results
+      - name: 📥 Download Compliance Matrix
+        uses: actions/download-artifact@v4
+        with:
+          name: compliance-matrix-jsonld
+          path: compliance/reports/
+          
+      - name: 🔍 Validate Compliance Matrix
         run: |
-          if [ -d "tests/results" ]; then
-            echo "Test results directory found"
+          if [ -f "compliance/reports/compliance_matrix.jsonld" ]; then
+            echo "Compliance matrix found"
             
-            # Loop through all JSON-LD files in the results directory
-            for result_file in tests/results/*.jsonld; do
-              if [ -f "$result_file" ]; then
-                echo "Validating $result_file..."
-                
-                # Check JSON-LD syntax
-                jq empty "$result_file"
-                
-                # Additional validation will be added as actual tests are implemented
+            # Check JSON-LD syntax
+            jq empty "compliance/reports/compliance_matrix.jsonld"
+            echo "Compliance matrix JSON-LD syntax is valid"
+            
+            # Validate compliance matrix against schema (if we have one)
+            if [ -f "schema/compliance-matrix-schema.json" ]; then
+              ajv validate -s schema/compliance-matrix-schema.json -d compliance/reports/compliance_matrix.jsonld
+              echo "Compliance matrix schema validation successful"
+            else
+              echo "No schema found for compliance matrix, skipping schema validation"
+            fi
+          else
+            echo "Compliance matrix not found!"
+            exit 1
+          fi
+          
+      - name: 🧪 Verify Requirement Coverage
+        run: |
+          if [ -f "compliance/reports/compliance_matrix.jsonld" ]; then
+            # Extract all requirement IDs from the system requirements
+            SYSTEM_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement") | .id' requirements/requirements.jsonld)
+            
+            # Extract all requirement IDs that have test cases in the compliance matrix
+            TESTED_REQS=$(jq -r '.["@graph"][] | .testCases[]? | .verifies' compliance/reports/compliance_matrix.jsonld)
+            
+            # Simple validation to ensure all system requirements have tests
+            for req in $SYSTEM_REQS; do
+              if echo "$TESTED_REQS" | grep -q "$req"; then
+                echo "✅ Requirement $req has test coverage"
+              else
+                echo "⚠️ Warning: Requirement $req has no test coverage"
+                # Not failing the build but warning about missing coverage
               fi
             done
           else
-            echo "No test results found yet - this is expected until tests are implemented"
-          fi
-      
-      # This workflow is intentionally minimal until we have actual test results
-      # It will be enhanced as we implement real tests 
+            echo "Compliance matrix not found for coverage validation"
+            exit 1
+          fi 
