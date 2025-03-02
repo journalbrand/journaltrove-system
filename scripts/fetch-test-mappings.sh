@@ -8,9 +8,9 @@ mkdir -p tmp/test-mappings
 
 # Define repositories to fetch from
 repositories=(
-  "journalbrand/todo-ios"
-  "journalbrand/todo-android"
-  "journalbrand/todo-ipfs"
+  "journalbrand/journaltrove-ios"
+  "journalbrand/journaltrove-android"
+  "journalbrand/journaltrove-ipfs"
 )
 
 # Define mapping file paths for each repo

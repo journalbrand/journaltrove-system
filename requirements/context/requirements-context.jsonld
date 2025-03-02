@@ -1,7 +1,7 @@
 {
   "@context": {
     "schema": "http://schema.org/",
-    "req": "https://journalbrand.github.io/todo-system/requirements/vocab#",
+    "req": "https://journalbrand.github.io/journaltrove-system/requirements/vocab#",
     
     "Requirement": "req:Requirement",
     "Test": "req:Test",

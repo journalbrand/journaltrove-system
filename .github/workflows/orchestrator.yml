@@ -52,13 +52,13 @@ jobs:
           
           # Fetch files using GitHub API
           echo "Fetching iOS requirements..."
-          gh api repos/journalbrand/todo-ios/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/ios/requirements/requirements.jsonld
+          gh api repos/journalbrand/journaltrove-ios/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/ios/requirements/requirements.jsonld
           
           echo "Fetching Android requirements..."
-          gh api repos/journalbrand/todo-android/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/android/requirements/requirements.jsonld
+          gh api repos/journalbrand/journaltrove-android/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/android/requirements/requirements.jsonld
           
           echo "Fetching IPFS requirements..."
-          gh api repos/journalbrand/todo-ipfs/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/ipfs/requirements/requirements.jsonld
+          gh api repos/journalbrand/journaltrove-ipfs/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/ipfs/requirements/requirements.jsonld
       
       - name: 📥 Fetch Component Test Mappings
         run: |
@@ -128,22 +128,22 @@ jobs:
       - name: 🚀 Trigger iOS CI Workflow
         run: |
           echo "Triggering iOS CI workflow..."
-          gh workflow run ci.yml --repo journalbrand/todo-ios
+          gh workflow run ci.yml --repo journalbrand/journaltrove-ios
           
           # Wait for workflow to start running
           sleep 5
           
           # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/todo-ios --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --repo journalbrand/journaltrove-ios --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           
           echo "iOS CI workflow triggered, run ID: $RUN_ID"
           echo "Waiting for iOS CI workflow to complete..."
           
           # Poll until the workflow completes
           while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/todo-ios --json status --jq '.status')
+            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ios --json status --jq '.status')
             if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/todo-ios --json conclusion --jq '.conclusion')
+              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ios --json conclusion --jq '.conclusion')
               echo "iOS CI workflow completed with status: $CONCLUSION"
               if [[ "$CONCLUSION" != "success" ]]; then
                 echo "::error::iOS CI workflow failed!"
@@ -158,22 +158,22 @@ jobs:
       - name: 🚀 Trigger Android CI Workflow
         run: |
           echo "Triggering Android CI workflow..."
-          gh workflow run ci.yml --repo journalbrand/todo-android
+          gh workflow run ci.yml --repo journalbrand/journaltrove-android
           
           # Wait for workflow to start running
           sleep 5
           
           # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/todo-android --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --repo journalbrand/journaltrove-android --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           
           echo "Android CI workflow triggered, run ID: $RUN_ID"
           echo "Waiting for Android CI workflow to complete..."
           
           # Poll until the workflow completes
           while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/todo-android --json status --jq '.status')
+            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-android --json status --jq '.status')
             if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/todo-android --json conclusion --jq '.conclusion')
+              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-android --json conclusion --jq '.conclusion')
               echo "Android CI workflow completed with status: $CONCLUSION"
               if [[ "$CONCLUSION" != "success" ]]; then
                 echo "::error::Android CI workflow failed!"
@@ -188,22 +188,22 @@ jobs:
       - name: 🚀 Trigger IPFS CI Workflow
         run: |
           echo "Triggering IPFS CI workflow..."
-          gh workflow run ci.yml --repo journalbrand/todo-ipfs
+          gh workflow run ci.yml --repo journalbrand/journaltrove-ipfs
           
           # Wait for workflow to start running
           sleep 5
           
           # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/todo-ipfs --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --repo journalbrand/journaltrove-ipfs --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           
           echo "IPFS CI workflow triggered, run ID: $RUN_ID"
           echo "Waiting for IPFS CI workflow to complete..."
           
           # Poll until the workflow completes
           while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/todo-ipfs --json status --jq '.status')
+            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ipfs --json status --jq '.status')
             if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/todo-ipfs --json conclusion --jq '.conclusion')
+              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ipfs --json conclusion --jq '.conclusion')
               echo "IPFS CI workflow completed with status: $CONCLUSION"
               if [[ "$CONCLUSION" != "success" ]]; then
                 echo "::error::IPFS CI workflow failed!"
@@ -241,22 +241,22 @@ jobs:
       - name: 🚀 Trigger Compliance Matrix Generation Workflow
         run: |
           echo "Triggering Compliance Matrix Generation workflow..."
-          gh workflow run compliance-matrix.yml --repo journalbrand/todo-system
+          gh workflow run compliance-matrix.yml --repo journalbrand/journaltrove-system
           
           # Wait for workflow to start running
           sleep 5
           
           # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/todo-system --workflow=compliance-matrix.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --repo journalbrand/journaltrove-system --workflow=compliance-matrix.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           
           echo "Compliance Matrix Generation workflow triggered, run ID: $RUN_ID"
           echo "Waiting for Compliance Matrix Generation workflow to complete..."
           
           # Poll until the workflow completes
           while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/todo-system --json status --jq '.status')
+            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-system --json status --jq '.status')
             if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/todo-system --json conclusion --jq '.conclusion')
+              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-system --json conclusion --jq '.conclusion')
               echo "Compliance Matrix Generation workflow completed with status: $CONCLUSION"
               if [[ "$CONCLUSION" != "success" ]]; then
                 echo "::error::Compliance Matrix Generation workflow failed!"

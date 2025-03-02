@@ -1,6 +1,6 @@
-# Todo App Scripts
+# journaltrove App Scripts
 
-This directory contains utility scripts for the Todo App system.
+This directory contains utility scripts for the journaltrove App system.
 
 ## Available Scripts
 
@@ -31,19 +31,19 @@ Triggers the CI/CD pipeline orchestrator workflow in GitHub Actions.
 
 ```
 ===============================================
-🚀 Todo App CI/CD Pipeline Orchestrator Runner
+🚀 journaltrove App CI/CD Pipeline Orchestrator Runner
 ===============================================
-Checking permissions for journalbrand/todo-system...
+Checking permissions for journalbrand/journaltrove-system...
 🚀 Triggering CI/CD Pipeline Orchestrator workflow...
 ⏱ Waiting for workflow to start running...
 ✅ Workflow started with run ID: 1234567890
-View progress at: https://github.com/journalbrand/todo-system/actions/runs/1234567890
+View progress at: https://github.com/journalbrand/journaltrove-system/actions/runs/1234567890
 Would you like to monitor the workflow status? (y/n): y
 📊 Monitoring workflow status...
 ⏳ Workflow is still running (status: in_progress)...
 ✅ Workflow completed with status: success
 🎉 CI/CD pipeline completed successfully!
-View details at: https://github.com/journalbrand/todo-system/actions/runs/1234567890
+View details at: https://github.com/journalbrand/journaltrove-system/actions/runs/1234567890
 Done!
 ```
 

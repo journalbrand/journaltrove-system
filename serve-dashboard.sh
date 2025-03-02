@@ -41,7 +41,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM EXIT
 
 # Initialize log file with a header
-echo "Todo App Dashboard Server - Started $(date)" > "$LOGFILE"
+echo "journaltrove App Dashboard Server - Started $(date)" > "$LOGFILE"
 
 # Function to download compliance matrix from GitHub workflow
 download_compliance_matrix() {
@@ -67,10 +67,10 @@ download_compliance_matrix() {
     # Download iOS test results
     log "📱 iOS: Downloading test results from latest workflow run..."
     # Get the latest run ID for iOS workflow
-    IOS_RUN_ID=$(gh run list --repo journalbrand/todo-ios --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    IOS_RUN_ID=$(gh run list --repo journalbrand/journaltrove-ios --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$IOS_RUN_ID" ]]; then
         log "📱 iOS: Downloading test results from run $IOS_RUN_ID..."
-        gh run download $IOS_RUN_ID --repo journalbrand/todo-ios --name ios-test-results-jsonld --dir compliance/results/ios 2>/dev/null
+        gh run download $IOS_RUN_ID --repo journalbrand/journaltrove-ios --name ios-test-results-jsonld --dir compliance/results/ios 2>/dev/null
         
         # Check if the file exists directly or in a subdirectory
         if [[ -f "compliance/results/ios/test-results.jsonld" ]]; then
@@ -95,10 +95,10 @@ download_compliance_matrix() {
     # Download Android test results
     log "🤖 Android: Downloading test results from latest workflow run..."
     # Get the latest run ID for Android workflow
-    ANDROID_RUN_ID=$(gh run list --repo journalbrand/todo-android --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    ANDROID_RUN_ID=$(gh run list --repo journalbrand/journaltrove-android --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$ANDROID_RUN_ID" ]]; then
         log "🤖 Android: Downloading test results from run $ANDROID_RUN_ID..."
-        gh run download $ANDROID_RUN_ID --repo journalbrand/todo-android --name android-test-results-jsonld --dir compliance/results/android 2>/dev/null
+        gh run download $ANDROID_RUN_ID --repo journalbrand/journaltrove-android --name android-test-results-jsonld --dir compliance/results/android 2>/dev/null
         
         # Check if the file exists directly or in a subdirectory
         if [[ -f "compliance/results/android/test-results.jsonld" ]]; then
@@ -123,10 +123,10 @@ download_compliance_matrix() {
     # Download IPFS test results
     log "📦 IPFS: Downloading test results from latest workflow run..."
     # Get the latest run ID for IPFS workflow
-    IPFS_RUN_ID=$(gh run list --repo journalbrand/todo-ipfs --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    IPFS_RUN_ID=$(gh run list --repo journalbrand/journaltrove-ipfs --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$IPFS_RUN_ID" ]]; then
         log "📦 IPFS: Downloading test results from run $IPFS_RUN_ID..."
-        gh run download $IPFS_RUN_ID --repo journalbrand/todo-ipfs --name ipfs-test-results-jsonld --dir compliance/results/ipfs 2>/dev/null
+        gh run download $IPFS_RUN_ID --repo journalbrand/journaltrove-ipfs --name ipfs-test-results-jsonld --dir compliance/results/ipfs 2>/dev/null
         
         # Check if the file exists directly or in a subdirectory
         if [[ -f "compliance/results/ipfs/test-results.jsonld" ]]; then

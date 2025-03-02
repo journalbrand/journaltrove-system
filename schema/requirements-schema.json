@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Todo App Requirements Schema",
-  "description": "Schema for validating requirements JSON-LD files across the Todo App ecosystem",
+  "title": "journaltrove App Requirements Schema",
+  "description": "Schema for validating requirements JSON-LD files across the journaltrove App ecosystem",
   "type": "object",
   "required": ["@context", "@graph"],
   "properties": {

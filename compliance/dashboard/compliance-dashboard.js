@@ -1,9 +1,9 @@
 // === WATCHER HEADER START ===
-// File: todo-system/compliance/dashboard/compliance-dashboard.js
+// File: journaltrove-system/compliance/dashboard/compliance-dashboard.js
 // Managed by file watcher
 // === WATCHER HEADER END ===
 /**
- * Todo App Compliance Dashboard
+ * journaltrove App Compliance Dashboard
  * 
  * This script loads and renders the compliance matrix from JSON-LD
  * providing a clear visualization of requirements, test coverage, and results
@@ -61,7 +61,7 @@ function renderDashboard(complianceData, requirementsData) {
   // Add header
   const header = document.createElement('header');
   header.innerHTML = `
-    <h1>Todo App Compliance Dashboard</h1>
+    <h1>journaltrove App Compliance Dashboard</h1>
     <p class="updated">Last updated: ${new Date().toLocaleString()}</p>
   `;
   app.appendChild(header);

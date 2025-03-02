@@ -1,5 +1,5 @@
 # === WATCHER HEADER START ===
-# File: todo-system/compliance/scripts/aggregate_jsonld_compliance.sh
+# File: journaltrove-system/compliance/scripts/aggregate_jsonld_compliance.sh
 # Managed by file watcher
 # === WATCHER HEADER END ===
 #!/bin/bash
@@ -21,7 +21,7 @@ else
   OUTPUT_FILE="$OUTPUT_DIR/compliance_matrix.jsonld"
 fi
 
-echo "== Todo App Compliance Matrix Generation =="
+echo "== journaltrove App Compliance Matrix Generation =="
 echo "Input directory: $RESULTS_DIR"
 echo "Output directory: $OUTPUT_DIR"
 echo "Output file: $OUTPUT_FILE"
@@ -45,7 +45,7 @@ cat > "$OUTPUT_FILE" << EOF
     {
       "@id": "compliance-matrix",
       "@type": "ComplianceMatrix",
-      "name": "Todo App Compliance Matrix",
+      "name": "journaltrove App Compliance Matrix",
       "description": "Generated compliance matrix aggregating test results from all components",
       "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
       "components": [],

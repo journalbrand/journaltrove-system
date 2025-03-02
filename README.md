@@ -1,10 +1,10 @@
 <!-- === WATCHER HEADER START === -->
-<!-- File: todo-system/README.md -->
+<!-- File: journaltrove-system/README.md -->
 <!-- Managed by file watcher -->
 <!-- === WATCHER HEADER END === -->
-# 🌹 Todo App System
+# 🌹 journaltrove App System
 
-This repository is the system-level coordinator for the Todo App ecosystem, defining requirements, CI/CD workflows, and compliance tracking for:
+This repository is the system-level coordinator for the journaltrove App ecosystem, defining requirements, CI/CD workflows, and compliance tracking for:
 
 - iOS Client (Swift)
 - Android Client (Kotlin) 
@@ -12,7 +12,7 @@ This repository is the system-level coordinator for the Todo App ecosystem, defi
 
 ## 📚 System Overview
 
-The Todo App is a distributed application that enables users to create, manage, and synchronize todo lists across multiple devices. It offers:
+The journaltrove App is a distributed application that enables users to create, manage, and synchronize journaltrove lists across multiple devices. It offers:
 
 - Secure local storage on mobile devices
 - IPFS-based data synchronization
@@ -21,17 +21,17 @@ The Todo App is a distributed application that enables users to create, manage, 
 
 ## 🏗️ Repository Structure
 
-The Todo App ecosystem is composed of multiple repositories:
+The journaltrove App ecosystem is composed of multiple repositories:
 
-- **[todo-system](https://github.com/journalbrand/todo-system)** - System-level coordination and requirements (this repo)
-- **[todo-ios](https://github.com/journalbrand/todo-ios)** - iOS client (Swift)
-- **[todo-android](https://github.com/journalbrand/todo-android)** - Android client (Kotlin)
-- **[todo-ipfs](https://github.com/journalbrand/todo-ipfs)** - IPFS node implementation (Go)
+- **[journaltrove-system](https://github.com/journalbrand/journaltrove-system)** - System-level coordination and requirements (this repo)
+- **[journaltrove-ios](https://github.com/journalbrand/journaltrove-ios)** - iOS client (Swift)
+- **[journaltrove-android](https://github.com/journalbrand/journaltrove-android)** - Android client (Kotlin)
+- **[journaltrove-ipfs](https://github.com/journalbrand/journaltrove-ipfs)** - IPFS node implementation (Go)
 
 ### Key Directories in This Repository
 
 ```
-todo-system/
+journaltrove-system/
 ├── .github/workflows/      # CI/CD workflows
 ├── compliance/             # Compliance tracking
 │   ├── dashboard/          # Compliance visualization
@@ -50,16 +50,16 @@ todo-system/
 1. Clone all repositories:
 
 ```bash
-git clone https://github.com/journalbrand/todo-system.git
-git clone https://github.com/journalbrand/todo-ios.git
-git clone https://github.com/journalbrand/todo-android.git
-git clone https://github.com/journalbrand/todo-ipfs.git
+git clone https://github.com/journalbrand/journaltrove-system.git
+git clone https://github.com/journalbrand/journaltrove-ios.git
+git clone https://github.com/journalbrand/journaltrove-android.git
+git clone https://github.com/journalbrand/journaltrove-ipfs.git
 ```
 
 2. Open the workspace in VSCode:
 
 ```bash
-code todo-system/todo-app.code-workspace
+code journaltrove-system/journaltrove-app.code-workspace
 ```
 
 This will open all repositories in a single VSCode window with recommended extensions.
@@ -75,9 +75,9 @@ This ecosystem uses structured JSON-LD for requirements management and traceabil
 
 ### Requirements Structure
 
-- System-level requirements are defined in `todo-system/requirements/requirements.jsonld`
+- System-level requirements are defined in `journaltrove-system/requirements/requirements.jsonld`
 - Component-level requirements are defined in each component repository
-- The JSON-LD schema is defined in `todo-system/requirements/context/requirements-context.jsonld`
+- The JSON-LD schema is defined in `journaltrove-system/requirements/context/requirements-context.jsonld`
 
 ### Requirements Hierarchy
 
@@ -88,14 +88,14 @@ Requirements follow a hierarchical structure:
 
 ### Adding New Requirements
 
-1. For system-level requirements, edit `todo-system/requirements/requirements.jsonld`
+1. For system-level requirements, edit `journaltrove-system/requirements/requirements.jsonld`
 2. For component-level requirements, edit the appropriate component repository
 3. Ensure that component requirements reference their parent system requirements
 4. Add test mappings to link tests to requirements
 
 ## 🧪 Compliance Tracking
 
-The Todo App uses a sophisticated compliance tracking system to ensure requirements are met.
+The journaltrove App uses a sophisticated compliance tracking system to ensure requirements are met.
 
 ### Compliance Matrix
 
@@ -109,14 +109,14 @@ The compliance matrix aggregates test results from all components and maps them 
 The compliance dashboard provides a visual representation of requirements coverage:
 1. Run the dashboard locally:
 ```bash
-cd todo-system
+cd journaltrove-system
 ./serve-dashboard.sh
 ```
 2. Open `http://localhost:8000/compliance/dashboard/` in your browser
 
 ## 🔄 CI/CD Pipeline
 
-The Todo App implements a fully automated CI/CD pipeline across all repositories.
+The journaltrove App implements a fully automated CI/CD pipeline across all repositories.
 
 ### CI/CD Structure
 
@@ -126,19 +126,19 @@ The Todo App implements a fully automated CI/CD pipeline across all repositories
 
 ### Workflow Overview
 
-1. **Orchestrator Workflow**: `todo-system/.github/workflows/orchestrator.yml`
+1. **Orchestrator Workflow**: `journaltrove-system/.github/workflows/orchestrator.yml`
    - Triggers all component workflows
    - Waits for completion
    - Triggers system-level workflows
 
 2. **Component Workflows**:
-   - iOS CI: `todo-ios/.github/workflows/ci.yml`
-   - Android CI: `todo-android/.github/workflows/ci.yml`
-   - IPFS CI: `todo-ipfs/.github/workflows/ci.yml`
+   - iOS CI: `journaltrove-ios/.github/workflows/ci.yml`
+   - Android CI: `journaltrove-android/.github/workflows/ci.yml`
+   - IPFS CI: `journaltrove-ipfs/.github/workflows/ci.yml`
 
 3. **System Workflows**:
-   - Compliance Matrix: `todo-system/.github/workflows/compliance-matrix.yml`
-   - Test Results Validation: `todo-system/.github/workflows/test-results-validation.yml`
+   - Compliance Matrix: `journaltrove-system/.github/workflows/compliance-matrix.yml`
+   - Test Results Validation: `journaltrove-system/.github/workflows/test-results-validation.yml`
 
 ### Running the CI/CD Pipeline
 
@@ -161,7 +161,7 @@ The project is currently in active development with:
 
 ## 🚀 Running the Orchestrator
 
-The Todo App uses a unified CI/CD pipeline orchestrator that triggers all component and system workflows in the correct sequence. This ensures consistent testing, validation, and reporting.
+The journaltrove App uses a unified CI/CD pipeline orchestrator that triggers all component and system workflows in the correct sequence. This ensures consistent testing, validation, and reporting.
 
 ### Early Validation
 
@@ -178,11 +178,11 @@ This early validation catches issues up front, allowing you to fix problems befo
 
 You can trigger the orchestrator in two ways:
 
-1. **Via GitHub Actions UI**: Go to the [Actions tab](https://github.com/journalbrand/todo-system/actions/workflows/orchestrator.yml) in the todo-system repository and click "Run workflow"
+1. **Via GitHub Actions UI**: Go to the [Actions tab](https://github.com/journalbrand/journaltrove-system/actions/workflows/orchestrator.yml) in the journaltrove-system repository and click "Run workflow"
 
 2. **Via Command Line**: Use the provided script:
    ```bash
-   cd todo-system
+   cd journaltrove-system
    ./scripts/run-cicd-pipeline.sh
    ```
 
@@ -229,7 +229,7 @@ The orchestrator will:
 The compliance dashboard provides a visual overview of test coverage and requirement status:
 
 ```bash
-cd todo-system
+cd journaltrove-system
 ./serve-dashboard.sh
 ```
 
@@ -237,7 +237,7 @@ Then open `http://localhost:8000/compliance/dashboard/` in your browser.
 
 ## 📝 Contributing
 
-To contribute to the Todo App System:
+To contribute to the journaltrove App System:
 
 1. Fork the repository
 2. Create a feature branch

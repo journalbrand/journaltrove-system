@@ -83,7 +83,7 @@ jobs:
           workflow_conclusion: success
           name: ios-test-results-jsonld
           path: compliance/results/ios
-          repo: journalbrand/todo-ios
+          repo: journalbrand/journaltrove-ios
           github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
@@ -95,7 +95,7 @@ jobs:
           workflow_conclusion: success
           name: android-test-results-jsonld
           path: compliance/results/android
-          repo: journalbrand/todo-android
+          repo: journalbrand/journaltrove-android
           github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
@@ -107,7 +107,7 @@ jobs:
           workflow_conclusion: success
           name: ipfs-test-results-jsonld
           path: compliance/results/ipfs
-          repo: journalbrand/todo-ipfs
+          repo: journalbrand/journaltrove-ipfs
           github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn

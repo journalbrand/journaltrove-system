@@ -4,7 +4,7 @@
     {
       "@id": "compliance-matrix",
       "@type": "ComplianceMatrix",
-      "name": "Todo App Compliance Matrix",
+      "name": "journaltrove App Compliance Matrix",
       "description": "Generated compliance matrix aggregating test results from all components",
       "timestamp": "2025-03-02T09:18:10Z",
       "components": [

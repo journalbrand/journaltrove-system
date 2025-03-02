@@ -1,15 +1,15 @@
 #!/bin/bash
-# Script to trigger the Todo App CI/CD Pipeline Orchestrator
+# Script to trigger the journaltrove App CI/CD Pipeline Orchestrator
 
 set -e
 
 # Configuration
-REPO_NAME="journalbrand/todo-system"
+REPO_NAME="journalbrand/journaltrove-system"
 WORKFLOW_NAME="orchestrator.yml"
 
 # Print banner
 echo "==============================================="
-echo "🚀 Todo App CI/CD Pipeline Orchestrator Runner"
+echo "🚀 journaltrove App CI/CD Pipeline Orchestrator Runner"
 echo "==============================================="
 
 # Check if GitHub CLI is installed
