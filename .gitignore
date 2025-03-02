@@ -69,3 +69,5 @@ Thumbs.db dashboard-output.txt
 dashboard.log
 .dashboard_refresh.pid
 dashboard.pid
+compliance/dashboard/compliance_matrix.jsonld
+compliance/reports/requirements.html
