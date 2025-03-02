@@ -5,8 +5,17 @@ set -e
 SCRIPT_DIR=$(dirname "$0")
 BASE_DIR=$(cd "$SCRIPT_DIR/../.." && pwd)
 RESULTS_DIR="${1:-$BASE_DIR/compliance/results}"
-OUTPUT_DIR="${2:-$BASE_DIR/compliance/reports}"
-OUTPUT_FILE="$OUTPUT_DIR/compliance_matrix.jsonld"
+
+# Handle the second parameter which can be either a directory or a full file path
+if [[ "$2" == *".jsonld" ]]; then
+  # Full file path provided
+  OUTPUT_FILE="$2"
+  OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
+else
+  # Only directory provided
+  OUTPUT_DIR="${2:-$BASE_DIR/compliance/reports}"
+  OUTPUT_FILE="$OUTPUT_DIR/compliance_matrix.jsonld"
+fi
 
 echo "== Todo App Compliance Matrix Generation =="
 echo "Input directory: $RESULTS_DIR"
