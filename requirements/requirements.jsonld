@@ -1,0 +1,125 @@
+{
+  "@context": "./context/requirements-context.jsonld",
+  "@graph": [
+    {
+      "id": "System",
+      "type": "Component",
+      "name": "Todo App System",
+      "description": "The complete Todo App ecosystem spanning mobile clients and IPFS nodes",
+      "version": "0.1.0",
+      "dateCreated": "2025-03-02T00:00:00Z",
+      "components": [
+        "System.iOS",
+        "System.Android",
+        "System.IPFS"
+      ]
+    },
+    {
+      "id": "System.iOS",
+      "type": "Component",
+      "name": "iOS Client",
+      "description": "The iOS Swift client application",
+      "parent": "System"
+    },
+    {
+      "id": "System.Android",
+      "type": "Component",
+      "name": "Android Client",
+      "description": "The Android Kotlin client application",
+      "parent": "System"
+    },
+    {
+      "id": "System.IPFS",
+      "type": "Component",
+      "name": "IPFS Node",
+      "description": "The Go-based Kubo IPFS node for data storage and synchronization",
+      "parent": "System"
+    },
+    {
+      "id": "Req.Sys.1",
+      "type": "Requirement",
+      "name": "Local Todo Storage",
+      "description": "The system shall allow users to create, read, update, and delete todo items on their local device",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "Req.Sys.2",
+      "type": "Requirement",
+      "name": "Secure IPFS Backup",
+      "description": "The system shall securely back up todo data to user-owned IPFS nodes",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "Req.Sys.3",
+      "type": "Requirement",
+      "name": "Cryptographic Identity",
+      "description": "The system shall generate and securely store cryptographic identity keys locally on the device",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "Req.Sys.4",
+      "type": "Requirement",
+      "name": "Secure Identity Transfer",
+      "description": "The system shall provide a secure mechanism to transfer identity information between devices using ephemeral keys",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System"
+    },
+    {
+      "id": "Req.Sys.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Todo CRUD",
+      "description": "The iOS client shall provide a user interface for creating, reading, updating, and deleting todo items",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "Req.Sys.1"
+    },
+    {
+      "id": "Req.Sys.Android.1",
+      "type": "Requirement",
+      "name": "Android Todo CRUD",
+      "description": "The Android client shall provide a user interface for creating, reading, updating, and deleting todo items",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "Req.Sys.1"
+    },
+    {
+      "id": "Req.Sys.iOS.2",
+      "type": "Requirement",
+      "name": "iOS IPFS Integration",
+      "description": "The iOS client shall integrate with IPFS nodes to backup and restore todo data",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "Req.Sys.2"
+    },
+    {
+      "id": "Req.Sys.Android.2",
+      "type": "Requirement",
+      "name": "Android IPFS Integration",
+      "description": "The Android client shall integrate with IPFS nodes to backup and restore todo data",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "Req.Sys.2"
+    },
+    {
+      "id": "Req.Sys.IPFS.1",
+      "type": "Requirement",
+      "name": "IPFS Node Data Storage",
+      "description": "The IPFS node shall store and pin todo data with appropriate content identifiers (CIDs)",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.IPFS",
+      "parent": "Req.Sys.2"
+    }
+  ]
+} 

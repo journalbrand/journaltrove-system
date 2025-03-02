@@ -1,0 +1,44 @@
+name: 🌹 Requirements Validation
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - 'requirements/**'
+
+jobs:
+  validate-requirements:
+    name: 📊 Validate Requirements
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout System Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+        
+      - name: 🔍 Validate JSON-LD Requirements
+        run: |
+          if [ -f "requirements/requirements.jsonld" ]; then
+            # Validate JSON-LD format
+            jq empty requirements/requirements.jsonld
+            echo "System requirements validation successful"
+          else
+            echo "Error: system requirements.jsonld not found"
+            exit 1
+          fi
+          
+          if [ -f "requirements/context/requirements-context.jsonld" ]; then
+            # Validate context schema
+            jq empty requirements/context/requirements-context.jsonld
+            echo "Requirements context validation successful"
+          else
+            echo "Error: requirements-context.jsonld not found"
+            exit 1
+          fi
+      
+      # Note: This is a lean workflow focused only on requirements validation
+      # Additional build, test, and compliance steps will be added incrementally
+      # as we implement actual code in each component 

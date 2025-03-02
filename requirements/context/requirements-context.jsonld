@@ -1,0 +1,44 @@
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "req": "https://journalbrand.github.io/todo-system/requirements/vocab#",
+    
+    "Requirement": "req:Requirement",
+    "Test": "req:Test",
+    "Component": "req:Component",
+    
+    "id": "@id",
+    "type": "@type",
+    "name": "schema:name",
+    "description": "schema:description",
+    "dateCreated": "schema:dateCreated",
+    "dateModified": "schema:dateModified",
+    "version": "schema:version",
+    "status": "req:status",
+    "priority": "req:priority",
+    "component": {
+      "@id": "req:component",
+      "@type": "@id"
+    },
+    "parent": {
+      "@id": "req:parent",
+      "@type": "@id"
+    },
+    "dependsOn": {
+      "@id": "req:dependsOn",
+      "@type": "@id"
+    },
+    "testsRequirement": {
+      "@id": "req:testsRequirement",
+      "@type": "@id"
+    },
+    "testResult": "req:testResult",
+    "testDate": "req:testDate",
+    "testEnvironment": "req:testEnvironment",
+    "testNotes": "req:testNotes",
+    "components": {
+      "@id": "req:hasComponent",
+      "@container": "@set"
+    }
+  }
+} 
