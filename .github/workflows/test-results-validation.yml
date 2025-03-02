@@ -30,10 +30,15 @@ jobs:
           npm install ajv ajv-formats
         
       - name: 📥 Download Compliance Matrix
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: compliance-matrix.yml
+          workflow_conclusion: success
           name: compliance-matrix-jsonld
           path: compliance/reports/
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: warn
           
       - name: 🔍 Validate Compliance Matrix
         run: |
@@ -77,4 +82,32 @@ jobs:
           else
             echo "Compliance matrix not found for coverage validation"
             exit 1
+          fi
+          
+      - name: 🔍 Validate Requirement ID References
+        run: |
+          # Make validation script executable
+          chmod +x scripts/validate-requirement-ids.js
+          
+          # Create results directory if it doesn't exist
+          mkdir -p compliance/results
+          
+          # If we have the compliance matrix, copy it to the results directory for validation
+          if [ -f "compliance/reports/compliance_matrix.jsonld" ]; then
+            cp compliance/reports/compliance_matrix.jsonld compliance/results/
+          fi
+          
+          # Run validation on test results
+          echo "Validating requirement ID references in test results..."
+          node scripts/validate-requirement-ids.js requirements/requirements.jsonld compliance/results
+          
+          # Check the exit code of the validate-requirement-ids.js script
+          VALIDATION_EXIT_CODE=$?
+          if [ $VALIDATION_EXIT_CODE -eq 0 ]; then
+            echo "✅ All requirement references are valid"
+          else
+            echo "❌ ERROR: Invalid requirement references detected!"
+            echo "Tests must reference valid requirements from the requirements.jsonld file."
+            echo "This is a critical error - failing fast!"
+            exit $VALIDATION_EXIT_CODE
           fi 
