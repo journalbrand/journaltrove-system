@@ -25,7 +25,7 @@ fi
 # Initialize the compliance matrix
 cat > "$OUTPUT_FILE" << EOF
 {
-  "@context": "https://raw.githubusercontent.com/example/todo-system/main/requirements/context/requirements-context.jsonld",
+  "@context": "https://raw.githubusercontent.com/journalbrand/todo-system/main/requirements/context/requirements-context.jsonld",
   "@graph": [
     {
       "@id": "todo-compliance-matrix",
