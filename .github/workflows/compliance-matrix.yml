@@ -25,7 +25,7 @@ jobs:
           node-version: 18
       
       - name: 📦 Install ajv-cli for JSON Schema validation
-        run: npm install -g ajv-cli
+        run: npm install -g ajv-cli ajv-formats
         
       - name: 🔍 Validate JSON-LD Requirements Format
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: 🌟 Validate Against JSON Schema
         run: |
           if [ -f "schema/requirements-schema.json" ]; then
-            ajv validate -s schema/requirements-schema.json -d requirements/requirements.jsonld
+            ajv validate -s schema/requirements-schema.json -d requirements/requirements.jsonld --spec=draft2019 --format=full
             echo "Schema validation successful"
           else
             echo "Warning: requirements-schema.json not found, skipping schema validation"
@@ -73,6 +73,10 @@ jobs:
           mkdir -p compliance/results
           mkdir -p compliance/reports
         
+      - name: 📝 Extract GitHub token from .env
+        run: |
+          echo "GITHUB_PAT=$(grep github_token .env | cut -d= -f2)" >> $GITHUB_ENV
+        
       - name: 📥 Download iOS Test Results
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -80,7 +84,8 @@ jobs:
           workflow_conclusion: success
           name: ios-test-results-jsonld
           path: compliance/results/ios
-          repo: example/todo-ios
+          repo: journalbrand/todo-ios
+          token: ${{ env.GITHUB_PAT }}
           check_artifacts: true
           if_no_artifact_found: warn
           
@@ -91,7 +96,8 @@ jobs:
           workflow_conclusion: success
           name: android-test-results-jsonld
           path: compliance/results/android
-          repo: example/todo-android
+          repo: journalbrand/todo-android
+          token: ${{ env.GITHUB_PAT }}
           check_artifacts: true
           if_no_artifact_found: warn
           
@@ -102,7 +108,8 @@ jobs:
           workflow_conclusion: success
           name: ipfs-test-results-jsonld
           path: compliance/results/ipfs
-          repo: example/todo-ipfs
+          repo: journalbrand/todo-ipfs
+          token: ${{ env.GITHUB_PAT }}
           check_artifacts: true
           if_no_artifact_found: warn
       
