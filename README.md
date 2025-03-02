@@ -159,6 +159,82 @@ The project is currently in active development with:
 - ✅ Basic component implementations (Echo services)
 - 🚧 Full component implementations in progress
 
+## 🚀 Running the Orchestrator
+
+The Todo App uses a unified CI/CD pipeline orchestrator that triggers all component and system workflows in the correct sequence. This ensures consistent testing, validation, and reporting.
+
+### Early Validation
+
+The orchestrator starts with an early validation phase that performs proactive checks before triggering any component workflows:
+
+- **Requirement Hierarchy Validation**: Ensures all parent-child relationships in requirements are valid
+- **Test-to-Requirement Mapping Validation**: Validates that tests only reference existing requirements
+- **Component ID Consistency**: Checks that requirement IDs follow the correct format and naming conventions
+- **Cross-Repository Validation**: Validates requirements across all component repositories
+
+This early validation catches issues up front, allowing you to fix problems before running the full test suite.
+
+### Triggering the Pipeline
+
+You can trigger the orchestrator in two ways:
+
+1. **Via GitHub Actions UI**: Go to the [Actions tab](https://github.com/journalbrand/todo-system/actions/workflows/orchestrator.yml) in the todo-system repository and click "Run workflow"
+
+2. **Via Command Line**: Use the provided script:
+   ```bash
+   cd todo-system
+   ./scripts/run-cicd-pipeline.sh
+   ```
+
+The orchestrator will:
+
+1. Perform early validation of requirements and test mappings
+2. Trigger component workflows (iOS, Android, IPFS) in parallel
+3. Wait for component workflows to complete
+4. Trigger system workflows (Compliance Matrix, Test Results Validation)
+5. Generate final compliance reports
+
+### Pipeline Flow
+
+```
+                                ┌─────────────────────┐
+                                │ Early Validation    │
+                                │ - Requirements      │
+                                │ - Test Mappings     │
+                                └──────────┬──────────┘
+                                           │
+                                           ▼
+                 ┌─────────────────────────┼─────────────────────────┐
+                 │                         │                         │
+                 ▼                         ▼                         ▼
+     ┌────────────────────┐   ┌────────────────────┐   ┌────────────────────┐
+     │ iOS CI Workflow    │   │ Android CI Workflow│   │ IPFS CI Workflow   │
+     └──────────┬─────────┘   └──────────┬─────────┘   └──────────┬─────────┘
+                │                         │                        │
+                └─────────────────────────┼────────────────────────┘
+                                          │
+                                          ▼
+                           ┌─────────────────────────────┐
+                           │ Compliance Matrix Generation │
+                           └───────────────┬─────────────┘
+                                           │
+                                           ▼
+                           ┌─────────────────────────────┐
+                           │   Test Results Validation   │
+                           └─────────────────────────────┘
+```
+
+### Viewing Results
+
+The compliance dashboard provides a visual overview of test coverage and requirement status:
+
+```bash
+cd todo-system
+./serve-dashboard.sh
+```
+
+Then open `http://localhost:8000/compliance/dashboard/` in your browser.
+
 ## 📝 Contributing
 
 To contribute to the Todo App System:

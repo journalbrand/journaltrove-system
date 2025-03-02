@@ -10,9 +10,99 @@ on:
         type: boolean
 
 jobs:
+  early-validation:
+    name: 🔍 Early Requirements Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout System Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: 📦 Install dependencies
+        run: |
+          npm init -y
+          npm install ajv ajv-formats
+          sudo apt-get update && sudo apt-get install -y jq
+      
+      - name: 🔧 Setup GitHub CLI
+        run: |
+          # Install GitHub CLI if not already available
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GitHub CLI..."
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh
+          fi
+          
+          # Login to GitHub CLI using the workflow token
+          echo "${{ secrets.CROSS_REPO_TOKEN }}" | gh auth login --with-token
+      
+      - name: 📥 Fetch Component Requirements
+        run: |
+          # Create directories
+          mkdir -p components/ios/requirements
+          mkdir -p components/android/requirements
+          mkdir -p components/ipfs/requirements
+          
+          # Fetch files using GitHub API
+          echo "Fetching iOS requirements..."
+          gh api repos/journalbrand/todo-ios/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/ios/requirements/requirements.jsonld
+          
+          echo "Fetching Android requirements..."
+          gh api repos/journalbrand/todo-android/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/android/requirements/requirements.jsonld
+          
+          echo "Fetching IPFS requirements..."
+          gh api repos/journalbrand/todo-ipfs/contents/requirements/requirements.jsonld --jq '.content' | base64 -d > components/ipfs/requirements/requirements.jsonld
+      
+      - name: 📥 Fetch Component Test Mappings
+        run: |
+          # Make script executable
+          chmod +x scripts/fetch-test-mappings.sh
+          
+          # Run the script
+          ./scripts/fetch-test-mappings.sh
+      
+      - name: 🔍 Validate JSON-LD Format
+        run: |
+          # Validate all requirements files
+          echo "Validating system requirements..."
+          jq empty requirements/requirements.jsonld
+          
+          echo "Validating iOS requirements..."
+          jq empty components/ios/requirements/requirements.jsonld
+          
+          echo "Validating Android requirements..."
+          jq empty components/android/requirements/requirements.jsonld
+          
+          echo "Validating IPFS requirements..."
+          jq empty components/ipfs/requirements/requirements.jsonld
+      
+      - name: 🧪 Validate Requirements Hierarchy
+        run: |
+          # Make validation script executable
+          chmod +x scripts/validate-requirements-early.js
+          
+          # Run validation on all requirements files
+          echo "Validating requirements hierarchy and test mappings..."
+          node scripts/validate-requirements-early.js \
+            requirements/requirements.jsonld \
+            components/ios/requirements/requirements.jsonld \
+            components/android/requirements/requirements.jsonld \
+            components/ipfs/requirements/requirements.jsonld \
+            tmp/test-mappings/ios/test-mappings.jsonld \
+            tmp/test-mappings/android/test-mappings.jsonld \
+            tmp/test-mappings/ipfs/test-mappings.jsonld
+
   trigger-component-workflows:
     name: 🔄 Trigger Component Workflows
     runs-on: ubuntu-latest
+    needs: [early-validation]
     
     steps:
       - name: 📥 Checkout System Repository
