@@ -1,0 +1,522 @@
+/**
+ * Todo App Compliance Dashboard Theme
+ * 
+ * This stylesheet provides theming support for both light and dark modes
+ * based on system preferences and explicit class settings.
+ */
+
+/* Light theme (default) */
+:root,
+html.light-theme {
+  /* Color scheme */
+  --primary-color: #0366d6;
+  --primary-hover-color: #0051b3;
+  --success-color: #28a745;
+  --warning-color: #f9a825;
+  --danger-color: #d73a49;
+  
+  /* Background colors */
+  --background-color: #ffffff;
+  --card-background: #ffffff;
+  --light-gray: #f6f8fa;
+  
+  /* Text colors */
+  --text-color: #24292e;
+  --text-secondary: #586069;
+  --text-muted: #6a737d;
+  
+  /* Border colors */
+  --border-color: #e1e4e8;
+  
+  /* Header colors */
+  --header-background: #f1f3f5;
+  --header-text: #24292e;
+  
+  /* Other UI elements */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* Status background colors */
+  --success-bg-color: rgba(40, 167, 69, 0.05);
+  --warning-bg-color: rgba(249, 168, 37, 0.05);
+  --danger-bg-color: rgba(215, 58, 73, 0.05);
+  
+  /* Badge colors */
+  --badge-background: #f1f3f5;
+  --success-badge-bg: rgba(40, 167, 69, 0.15);
+  --danger-badge-bg: rgba(215, 58, 73, 0.15);
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Color scheme */
+    --primary-color: #58a6ff;
+    --primary-hover-color: #79b8ff;
+    --success-color: #3fb950;
+    --warning-color: #d29922;
+    --danger-color: #f85149;
+    
+    /* Background colors */
+    --background-color: #0d1117;
+    --card-background: #161b22;
+    --light-gray: #21262d;
+    
+    /* Text colors */
+    --text-color: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-muted: #7d8590;
+    
+    /* Border colors */
+    --border-color: #30363d;
+    
+    /* Header colors */
+    --header-background: #161b22;
+    --header-text: #c9d1d9;
+    
+    /* Other UI elements */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    
+    /* Status background colors */
+    --success-bg-color: rgba(56, 174, 97, 0.1);
+    --warning-bg-color: rgba(209, 154, 47, 0.1);
+    --danger-bg-color: rgba(219, 78, 82, 0.1);
+    
+    /* Badge colors */
+    --badge-background: #30363d;
+    --success-badge-bg: rgba(56, 174, 97, 0.15);
+    --danger-badge-bg: rgba(219, 78, 82, 0.15);
+  }
+}
+
+/* Explicit dark theme class (overrides system preference) */
+html.dark-theme {
+  /* Color scheme */
+  --primary-color: #58a6ff;
+  --primary-hover-color: #79b8ff;
+  --success-color: #3fb950;
+  --warning-color: #d29922;
+  --danger-color: #f85149;
+  
+  /* Background colors */
+  --background-color: #0d1117;
+  --card-background: #161b22;
+  --light-gray: #21262d;
+  
+  /* Text colors */
+  --text-color: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-muted: #7d8590;
+  
+  /* Border colors */
+  --border-color: #30363d;
+  
+  /* Header colors */
+  --header-background: #161b22;
+  --header-text: #c9d1d9;
+  
+  /* Other UI elements */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  
+  /* Status background colors */
+  --success-bg-color: rgba(56, 174, 97, 0.1);
+  --warning-bg-color: rgba(209, 154, 47, 0.1);
+  --danger-bg-color: rgba(219, 78, 82, 0.1);
+  
+  /* Badge colors */
+  --badge-background: #30363d;
+  --success-badge-bg: rgba(56, 174, 97, 0.15);
+  --danger-badge-bg: rgba(219, 78, 82, 0.15);
+}
+
+/* Base styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+header h1 {
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.updated {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+/* Statistics Cards */
+.statistics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+  background: var(--card-background);
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.stat-card.wide {
+  grid-column: 1 / -1;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.stat-card .value {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0.75rem 0;
+  color: var(--text-color);
+}
+
+.value.passing {
+  color: var(--success-color);
+}
+
+.value.warning {
+  color: var(--warning-color);
+}
+
+.value.failing {
+  color: var(--danger-color);
+}
+
+/* Requirements Matrix Table */
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.matrix-table th,
+.matrix-table td {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.matrix-table th {
+  background-color: var(--light-gray);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.matrix-table tr.passing {
+  background-color: var(--success-bg-color);
+}
+
+.matrix-table tr.failing {
+  background-color: var(--danger-bg-color);
+}
+
+.matrix-table tr.no-coverage {
+  background-color: var(--warning-bg-color);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-dot.passing {
+  background-color: var(--success-color);
+}
+
+.status-dot.failing {
+  background-color: var(--danger-color);
+}
+
+.status-dot.no-coverage {
+  background-color: var(--warning-color);
+}
+
+/* Test details */
+.test-details td {
+  padding: 0;
+}
+
+.test-list {
+  padding: 0.5rem;
+  background-color: var(--light-gray);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.test-case {
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+}
+
+.test-case.passing {
+  border-left: 4px solid var(--success-color);
+}
+
+.test-case.failing {
+  border-left: 4px solid var(--danger-color);
+}
+
+.test-name {
+  font-weight: 600;
+  margin-right: 0.5rem;
+  color: var(--text-color);
+}
+
+.component-badge {
+  background-color: var(--badge-background);
+  border-radius: 12px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.status-badge {
+  border-radius: 12px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.passing {
+  background-color: var(--success-badge-bg);
+  color: var(--success-color);
+}
+
+.status-badge.failing {
+  background-color: var(--danger-badge-bg);
+  color: var(--danger-color);
+}
+
+/* Component summary */
+.component-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.component-card {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1.25rem;
+  background: var(--card-background);
+  box-shadow: 0 1px 3px var(--shadow-color);
+  margin-bottom: 1rem;
+}
+
+.component-card.passing {
+  border-top: 4px solid var(--success-color);
+}
+
+.component-card.failing {
+  border-top: 4px solid var(--danger-color);
+}
+
+.component-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+
+.component-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.stat .value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-color);
+}
+
+.stat .label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.status-bar {
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: var(--light-gray);
+  display: flex;
+}
+
+.bar-passing {
+  height: 100%;
+  background-color: var(--success-color);
+}
+
+.bar-failing {
+  height: 100%;
+  background-color: var(--danger-color);
+}
+
+/* Error message */
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--light-gray);
+  border-radius: 6px;
+  margin: 2rem auto;
+  max-width: 500px;
+  color: var(--danger-color);
+}
+
+.error-message button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.error-message button:hover {
+  background-color: var(--primary-hover-color);
+}
+
+/* Progress bars */
+.progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--light-gray);
+  overflow: hidden;
+}
+
+.progress-value {
+  height: 100%;
+}
+
+.progress-value.success {
+  background-color: var(--success-color);
+}
+
+.progress-value.danger {
+  background-color: var(--danger-color);
+}
+
+.progress-value.warning {
+  background-color: var(--warning-color);
+}
+
+/* Dashboard container */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.dashboard-title {
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-subtitle {
+  margin-top: 0;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+.dashboard-section {
+  margin-bottom: 2rem;
+}
+
+/* Cards */
+.card {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  margin-bottom: 1rem;
+}
+
+.card:hover {
+  box-shadow: 0 3px 6px var(--shadow-color);
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+/* Buttons */
+button, .button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover, .button:hover {
+  background-color: var(--primary-hover-color);
+}
+
+/* Grid layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+} 
