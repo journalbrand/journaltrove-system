@@ -6,6 +6,7 @@ on:
     branches: [ main ]
     paths:
       - 'requirements/**'
+      - 'schema/**'
 
 jobs:
   validate-requirements:
@@ -18,8 +19,16 @@ jobs:
       
       - name: 🔧 Setup jq
         run: sudo apt-get update && sudo apt-get install -y jq
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: 📦 Install ajv-cli for JSON Schema validation
+        run: npm install -g ajv-cli
         
-      - name: 🔍 Validate JSON-LD Requirements
+      - name: 🔍 Validate JSON-LD Requirements Format
         run: |
           if [ -f "requirements/requirements.jsonld" ]; then
             # Validate JSON-LD format
@@ -39,6 +48,14 @@ jobs:
             exit 1
           fi
       
-      # Note: This is a lean workflow focused only on requirements validation
-      # Additional build, test, and compliance steps will be added incrementally
-      # as we implement actual code in each component 
+      - name: 🌟 Validate Against JSON Schema
+        run: |
+          if [ -f "schema/requirements-schema.json" ]; then
+            ajv validate -s schema/requirements-schema.json -d requirements/requirements.jsonld
+            echo "Schema validation successful"
+          else
+            echo "Warning: requirements-schema.json not found, skipping schema validation"
+          fi
+      
+      # Note: This workflow will be enhanced incrementally as we implement components
+      # Additional build, test, and compliance steps will be added as we develop actual code 

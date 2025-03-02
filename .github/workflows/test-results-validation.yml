@@ -1,0 +1,51 @@
+name: 🧪 Test Results Validation
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - 'tests/**'
+
+jobs:
+  validate-test-results:
+    name: 📊 Validate Test Results
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout System Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: 📦 Install ajv-cli for JSON Schema validation
+        run: npm install -g ajv-cli
+        
+      - name: 🔍 Check for Test Results
+        run: |
+          if [ -d "tests/results" ]; then
+            echo "Test results directory found"
+            
+            # Loop through all JSON-LD files in the results directory
+            for result_file in tests/results/*.jsonld; do
+              if [ -f "$result_file" ]; then
+                echo "Validating $result_file..."
+                
+                # Check JSON-LD syntax
+                jq empty "$result_file"
+                
+                # Additional validation will be added as actual tests are implemented
+              fi
+            done
+          else
+            echo "No test results found yet - this is expected until tests are implemented"
+          fi
+      
+      # This workflow is intentionally minimal until we have actual test results
+      # It will be enhanced as we implement real tests 

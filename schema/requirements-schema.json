@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Todo App Requirements Schema",
+  "description": "Schema for validating requirements JSON-LD files across the Todo App ecosystem",
+  "type": "object",
+  "required": ["@context", "@graph"],
+  "properties": {
+    "@context": {
+      "description": "The JSON-LD context that defines the vocabulary",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "object" }
+      ]
+    },
+    "@graph": {
+      "type": "array",
+      "description": "The collection of requirements, components, and tests",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the item"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the item (Requirement, Component, or Test)",
+            "enum": ["Requirement", "Component", "Test"]
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description"
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the item was created"
+          },
+          "dateModified": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the item was last modified"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version of the item"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the requirement",
+            "enum": ["Draft", "Active", "Deprecated", "Fulfilled"]
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level",
+            "enum": ["High", "Medium", "Low"]
+          },
+          "component": {
+            "type": "string",
+            "description": "Component this item belongs to"
+          },
+          "parent": {
+            "type": "string",
+            "description": "Parent requirement ID if this is a child requirement"
+          },
+          "dependsOn": {
+            "type": "string",
+            "description": "Requirement ID that this requirement depends on"
+          },
+          "testsRequirement": {
+            "type": "string",
+            "description": "Requirement ID that this test verifies"
+          },
+          "testResult": {
+            "type": "string",
+            "description": "Result of the test execution",
+            "enum": ["Passed", "Failed", "Pending", "Skipped"]
+          },
+          "testDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the test was last executed"
+          },
+          "testEnvironment": {
+            "type": "string",
+            "description": "Environment where the test was executed"
+          },
+          "testNotes": {
+            "type": "string",
+            "description": "Additional notes about the test execution"
+          },
+          "components": {
+            "type": "array",
+            "description": "Sub-components for a component",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": { "type": { "const": "Requirement" } }
+            },
+            "then": {
+              "required": ["name", "description", "status", "priority"]
+            }
+          },
+          {
+            "if": {
+              "properties": { "type": { "const": "Component" } }
+            },
+            "then": {
+              "required": ["name", "description"]
+            }
+          },
+          {
+            "if": {
+              "properties": { "type": { "const": "Test" } }
+            },
+            "then": {
+              "required": ["name", "testsRequirement"]
+            }
+          }
+        ]
+      }
+    }
+  }
+} 
