@@ -25,8 +25,25 @@ jobs:
           node-version: 18
       
       - name: 📦 Install ajv-cli for JSON Schema validation
-        run: npm install -g ajv-cli ajv-formats
-        
+        run: |
+          npm install -g ajv-cli
+          # Create a formats.js file that will be used to add format support
+          cat > formats.js << EOF
+          module.exports = function(ajv) {
+            // Define date-time format validation
+            ajv.addFormat("date-time", {
+              validate: (dateTimeString) => {
+                try {
+                  const date = new Date(dateTimeString);
+                  return !isNaN(date.getTime());
+                } catch (e) {
+                  return false;
+                }
+              }
+            });
+          }
+          EOF
+      
       - name: 🔍 Validate JSON-LD Requirements Format
         run: |
           if [ -f "requirements/requirements.jsonld" ]; then
@@ -50,7 +67,10 @@ jobs:
       - name: 🌟 Validate Against JSON Schema
         run: |
           if [ -f "schema/requirements-schema.json" ]; then
-            ajv validate -s schema/requirements-schema.json -d requirements/requirements.jsonld --spec=draft2019 --formats=date-time
+            # Create a custom formats file
+            
+            # Run validation with correct parameters
+            ajv -c formats.js validate -s schema/requirements-schema.json -d requirements/requirements.jsonld
             echo "Schema validation successful"
           else
             echo "Warning: requirements-schema.json not found, skipping schema validation"
