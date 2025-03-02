@@ -65,4 +65,7 @@ temp/
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db 
+Thumbs.db dashboard-output.txt
+dashboard.log
+.dashboard_refresh.pid
+dashboard.pid
