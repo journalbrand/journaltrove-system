@@ -97,27 +97,32 @@ done
 echo "Generating statistics..."
 
 # Count total requirements
-TOTAL_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id' "../requirements/requirements.jsonld" | wc -l | xargs)
+TOTAL_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id' "$BASE_DIR/requirements/requirements.jsonld" | wc -l | xargs)
 
 # Count total tests
 TOTAL_TESTS=$(jq -r '.["@graph"][0].testCases | length' "$OUTPUT_FILE")
 
 # Count passed tests
-PASSED_TESTS=$(jq -r '.["@graph"][0].testCases[] | select(.result == "Pass" or .result == "Passed") | .id' "$OUTPUT_FILE" | wc -l | xargs)
+PASSED_TESTS=$(jq -r '.["@graph"][0].testCases[] | select(.result == "Pass" or .result == "Passed") | .["@id"]' "$OUTPUT_FILE" 2>/dev/null | wc -l | xargs)
 
 # Count failed tests
-FAILED_TESTS=$(jq -r '.["@graph"][0].testCases[] | select(.result == "Fail" or .result == "Failed") | .id' "$OUTPUT_FILE" | wc -l | xargs)
+FAILED_TESTS=$(jq -r '.["@graph"][0].testCases[] | select(.result == "Fail" or .result == "Failed") | .["@id"]' "$OUTPUT_FILE" 2>/dev/null | wc -l | xargs)
+
+# Count components
+COMPONENTS_COUNT=$(jq -r '.["@graph"][0].components | length' "$OUTPUT_FILE")
 
 # Add statistics to the compliance matrix
 jq --arg total_reqs "$TOTAL_REQS" \
    --arg total_tests "$TOTAL_TESTS" \
    --arg passed_tests "$PASSED_TESTS" \
    --arg failed_tests "$FAILED_TESTS" \
+   --arg components_count "$COMPONENTS_COUNT" \
    '.["@graph"][0].statistics = {
       "totalRequirements": $total_reqs | tonumber,
       "totalTests": $total_tests | tonumber,
-      "passedTests": $passed_tests | tonumber,
-      "failedTests": $failed_tests | tonumber
+      "passingTests": $passed_tests | tonumber,
+      "failingTests": $failed_tests | tonumber,
+      "components": $components_count | tonumber
     }' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
 
 # Generate an HTML report
@@ -134,6 +139,7 @@ echo "- Total requirements: $TOTAL_REQS"
 echo "- Total tests: $TOTAL_TESTS"
 echo "- Passed tests: $PASSED_TESTS"
 echo "- Failed tests: $FAILED_TESTS"
+echo "- Components: $COMPONENTS_COUNT"
 
 # Create a simple HTML report for convenience
 REPORT_DIR="$BASE_DIR/compliance/reports"
@@ -171,17 +177,21 @@ cat > "$HTML_REPORT" << EOF
     </div>
     <div class="stat-card">
       <h3>Passing</h3>
-      <div class="value">$(jq -r '.["@graph"][0].statistics.passedTests' "$OUTPUT_FILE")</div>
+      <div class="value">$(jq -r '.["@graph"][0].statistics.passingTests' "$OUTPUT_FILE")</div>
     </div>
     <div class="stat-card">
       <h3>Failing</h3>
-      <div class="value">$(jq -r '.["@graph"][0].statistics.failedTests' "$OUTPUT_FILE")</div>
+      <div class="value">$(jq -r '.["@graph"][0].statistics.failingTests' "$OUTPUT_FILE")</div>
+    </div>
+    <div class="stat-card">
+      <h3>Components</h3>
+      <div class="value">$(jq -r '.["@graph"][0].statistics.components' "$OUTPUT_FILE")</div>
     </div>
   </div>
   
-  <div class="status $(if [ "$(jq -r '.["@graph"][0].statistics.failedTests' "$OUTPUT_FILE")" -eq 0 ]; then echo "success"; else echo "warning"; fi)">
-    <h2>$(if [ "$(jq -r '.["@graph"][0].statistics.failedTests' "$OUTPUT_FILE")" -eq 0 ]; then echo "✓ All Tests Passing"; else echo "⚠ Some Tests Failing"; fi)</h2>
-    <p>$(if [ "$(jq -r '.["@graph"][0].statistics.failedTests' "$OUTPUT_FILE")" -eq 0 ]; then echo "All tests are passing successfully."; else echo "There are failing tests that need attention."; fi)</p>
+  <div class="status $(if [ "$(jq -r '.["@graph"][0].statistics.failingTests' "$OUTPUT_FILE")" -eq 0 ]; then echo "success"; else echo "warning"; fi)">
+    <h2>$(if [ "$(jq -r '.["@graph"][0].statistics.failingTests' "$OUTPUT_FILE")" -eq 0 ]; then echo "✓ All Tests Passing"; else echo "⚠ Some Tests Failing"; fi)</h2>
+    <p>$(if [ "$(jq -r '.["@graph"][0].statistics.failingTests' "$OUTPUT_FILE")" -eq 0 ]; then echo "All tests are passing successfully."; else echo "There are failing tests that need attention."; fi)</p>
   </div>
   
   <p>

@@ -36,7 +36,7 @@
       "parent": "System"
     },
     {
-      "id": "Req.Sys.1",
+      "id": "System.1",
       "type": "Requirement",
       "name": "Local Todo Storage",
       "description": "The system shall allow users to create, read, update, and delete todo items on their local device",
@@ -45,81 +45,112 @@
       "component": "System"
     },
     {
-      "id": "Req.Sys.2",
+      "id": "System.1.1",
       "type": "Requirement",
-      "name": "Secure IPFS Backup",
-      "description": "The system shall securely back up todo data to user-owned IPFS nodes",
+      "name": "Todo CRUD Operations",
+      "description": "The system shall provide CRUD (Create, Read, Update, Delete) operations for todo items",
       "status": "Draft",
       "priority": "High",
-      "component": "System"
+      "component": "System",
+      "parent": "System.1"
     },
     {
-      "id": "Req.Sys.3",
-      "type": "Requirement",
-      "name": "Cryptographic Identity",
-      "description": "The system shall generate and securely store cryptographic identity keys locally on the device",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System"
-    },
-    {
-      "id": "Req.Sys.4",
-      "type": "Requirement",
-      "name": "Secure Identity Transfer",
-      "description": "The system shall provide a secure mechanism to transfer identity information between devices using ephemeral keys",
-      "status": "Draft",
-      "priority": "Medium",
-      "component": "System"
-    },
-    {
-      "id": "Req.Sys.iOS.1",
+      "id": "System.1.1.iOS.1",
       "type": "Requirement",
       "name": "iOS Todo CRUD",
       "description": "The iOS client shall provide a user interface for creating, reading, updating, and deleting todo items",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "Req.Sys.1"
+      "parent": "System.1.1"
     },
     {
-      "id": "Req.Sys.Android.1",
+      "id": "System.1.1.Android.1",
       "type": "Requirement",
       "name": "Android Todo CRUD",
       "description": "The Android client shall provide a user interface for creating, reading, updating, and deleting todo items",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "Req.Sys.1"
+      "parent": "System.1.1"
     },
     {
-      "id": "Req.Sys.iOS.2",
+      "id": "System.2",
+      "type": "Requirement",
+      "name": "Data Synchronization",
+      "description": "The system shall securely synchronize todo data across devices",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.2.1",
+      "type": "Requirement",
+      "name": "IPFS Integration",
+      "description": "The system shall use IPFS for secure, distributed data storage and synchronization",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.2"
+    },
+    {
+      "id": "System.2.1.iOS.1",
       "type": "Requirement",
       "name": "iOS IPFS Integration",
       "description": "The iOS client shall integrate with IPFS nodes to backup and restore todo data",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "Req.Sys.2"
+      "parent": "System.2.1"
     },
     {
-      "id": "Req.Sys.Android.2",
+      "id": "System.2.1.Android.1",
       "type": "Requirement",
       "name": "Android IPFS Integration",
       "description": "The Android client shall integrate with IPFS nodes to backup and restore todo data",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "Req.Sys.2"
+      "parent": "System.2.1"
     },
     {
-      "id": "Req.Sys.IPFS.1",
+      "id": "System.2.1.IPFS.1",
       "type": "Requirement",
       "name": "IPFS Node Data Storage",
       "description": "The IPFS node shall store and pin todo data with appropriate content identifiers (CIDs)",
       "status": "Draft",
       "priority": "High",
       "component": "System.IPFS",
-      "parent": "Req.Sys.2"
+      "parent": "System.2.1"
+    },
+    {
+      "id": "System.3",
+      "type": "Requirement",
+      "name": "Identity Management",
+      "description": "The system shall provide secure identity management capabilities",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.3.1",
+      "type": "Requirement",
+      "name": "Cryptographic Identity",
+      "description": "The system shall generate and securely store cryptographic identity keys locally on the device",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.3"
+    },
+    {
+      "id": "System.3.2",
+      "type": "Requirement",
+      "name": "Secure Identity Transfer",
+      "description": "The system shall provide a secure mechanism to transfer identity information between devices using ephemeral keys",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System",
+      "parent": "System.3"
     }
   ]
 } 

@@ -1,0 +1,44 @@
+{
+  "@context": "https://raw.githubusercontent.com/journalbrand/todo-system/main/requirements/context/requirements-context.jsonld",
+  "@graph": [
+    {
+      "@id": "android-test-results",
+      "@type": "TestResults",
+      "component": "Android",
+      "timestamp": "2025-03-02T09:13:44Z",
+      "testSuites": [
+  {
+    "@id": "EchoServiceTest",
+    "@type": "TestSuite",
+    "name": "EchoServiceTest",
+    "testCases": [
+      {
+        "@id": "testEcho",
+        "@type": "TestCase",
+        "name": "testEcho",
+        "verifies": "System.1.1.Android.1",
+        "description": "Verifies that the echo method correctly returns input strings",
+        "result": "Pass"
+      },
+      {
+        "@id": "testEchoWithTimestamp",
+        "@type": "TestCase",
+        "name": "testEchoWithTimestamp",
+        "verifies": "System.1.1.Android.1",
+        "description": "Verifies that the echoWithTimestamp method adds a timestamp to the input",
+        "result": "Pass"
+      },
+      {
+        "@id": "testEchoWithEmptyString",
+        "@type": "TestCase",
+        "name": "testEchoWithEmptyString",
+        "verifies": "System.1.1.Android.1",
+        "description": "Verifies that the echo method handles empty strings correctly",
+        "result": "Pass"
+      }
+    ]
+  }
+]
+    }
+  ]
+}

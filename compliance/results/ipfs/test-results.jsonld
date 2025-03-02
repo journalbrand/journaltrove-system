@@ -1,0 +1,44 @@
+{
+  "@context": "https://raw.githubusercontent.com/journalbrand/todo-system/main/requirements/context/requirements-context.jsonld",
+  "@graph": [
+    {
+      "@id": "ipfs-test-results",
+      "@type": "TestResults",
+      "component": "IPFS",
+      "timestamp": "2025-03-02T09:12:34Z",
+      "testSuites": [
+  {
+    "@id": "EchoServiceTest",
+    "@type": "TestSuite",
+    "name": "EchoServiceTest",
+    "testCases": [
+      {
+        "@id": "TestEcho",
+        "@type": "TestCase",
+        "name": "TestEcho",
+        "verifies": "System.2.1.IPFS.1",
+        "description": "Verifies that the Echo method correctly returns input strings",
+        "result": "Pass"
+      },
+      {
+        "@id": "TestEchoWithTimestamp",
+        "@type": "TestCase",
+        "name": "TestEchoWithTimestamp",
+        "verifies": "System.2.1.IPFS.1",
+        "description": "Verifies that the EchoWithTimestamp method adds a timestamp to the input",
+        "result": "Pass"
+      },
+      {
+        "@id": "TestEchoWithEmptyString",
+        "@type": "TestCase",
+        "name": "TestEchoWithEmptyString",
+        "verifies": "System.2.1.IPFS.1",
+        "description": "Verifies that the Echo method handles empty strings correctly",
+        "result": "Pass"
+      }
+    ]
+  }
+]
+    }
+  ]
+}

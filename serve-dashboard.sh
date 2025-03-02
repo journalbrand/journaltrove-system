@@ -1,98 +1,225 @@
 #!/bin/bash
 
-# Navigate to the todo-system directory
-cd "$(dirname "$0")"
+# Define the output log file
+LOGFILE="dashboard.log"
+
+# Determine the base directory
+BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$BASE_DIR" || { echo "Error: Could not change to base directory"; exit 1; }
 
 # Define server port
 PORT=8000
 
-# Function to download the latest compliance matrix
-download_compliance_matrix() {
-    echo "🔄 $(date +"%H:%M:%S") - Refreshing compliance matrix data..."
+# Define PID file for tracking auto-refresh background processes
+PID_FILE=".dashboard_refresh.pid"
+
+# Function to log messages to both console and log file
+log() {
+    echo "$@"
+    echo "$(date "+%T") - $@" >> "$LOGFILE"
+}
+
+# Function to clean up all child processes on exit
+cleanup() {
+    log "Shutting down auto-refresh process..."
+    if [[ -f "$PID_FILE" ]]; then
+        # Kill the auto-refresh process if it exists
+        if kill -0 $(cat "$PID_FILE") 2>/dev/null; then
+            kill $(cat "$PID_FILE") 2>/dev/null
+        fi
+        rm -f "$PID_FILE"
+    fi
     
-    if ! command -v gh &> /dev/null; then
-        echo "⚠️ GitHub CLI not found. Cannot refresh data."
+    # Get all child processes and kill them
+    pkill -P $$ 2>/dev/null
+    
+    # Exit the script
+    exit 0
+}
+
+# Set up trap to catch termination signals
+trap cleanup SIGINT SIGTERM EXIT
+
+# Initialize log file with a header
+echo "Todo App Dashboard Server - Started $(date)" > "$LOGFILE"
+
+# Function to download compliance matrix from GitHub workflow
+download_compliance_matrix() {
+    log "🔍 Checking for GitHub CLI..."
+    if ! command -v gh &>/dev/null; then
+        log "❌ GitHub CLI not found. Cannot download compliance matrix artifact."
+        log "Please install GitHub CLI or manually copy the compliance matrix to compliance/dashboard/compliance_matrix.jsonld"
         return 1
     fi
     
+    log "✅ GitHub CLI found."
+    log "🔄 Refreshing compliance matrix data..."
+    
     # Create necessary directories
-    mkdir -p compliance/dashboard
-    mkdir -p compliance/reports
+    mkdir -p "compliance/dashboard" "compliance/reports" "compliance/results"
     
-    # Download the latest compliance matrix artifact from the most recent successful workflow run
-    WORKFLOW_RUN_ID=$(gh run list --workflow=compliance-matrix.yml --status=completed --limit=1 --json databaseId --jq '.[0].databaseId')
+    # Download test results from component workflows
+    log "📥 Downloading test results from component workflows..."
     
-    if [ -n "$WORKFLOW_RUN_ID" ]; then
-        echo "📥 Downloading artifacts from workflow run $WORKFLOW_RUN_ID..."
+    # Create directories for each component's test results
+    mkdir -p "compliance/results/ios" "compliance/results/android" "compliance/results/ipfs"
+    
+    # Download iOS test results
+    log "📱 iOS: Downloading test results from latest workflow run..."
+    # Get the latest run ID for iOS workflow
+    IOS_RUN_ID=$(gh run list --repo journalbrand/todo-ios --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    if [[ -n "$IOS_RUN_ID" ]]; then
+        log "📱 iOS: Downloading test results from run $IOS_RUN_ID..."
+        gh run download $IOS_RUN_ID --repo journalbrand/todo-ios --name ios-test-results-jsonld --dir compliance/results/ios 2>/dev/null
         
-        # Create a temporary directory for downloading
-        TEMP_DIR=$(mktemp -d)
-        
-        # Download the artifact
-        gh run download $WORKFLOW_RUN_ID --name=compliance-matrix-jsonld --dir="$TEMP_DIR" > /dev/null 2>&1
-        
-        if [ -f "$TEMP_DIR/compliance_matrix.jsonld" ]; then
-            # Copy to both locations where it might be expected
-            cp "$TEMP_DIR/compliance_matrix.jsonld" compliance/dashboard/compliance_matrix.jsonld
-            cp "$TEMP_DIR/compliance_matrix.jsonld" compliance/reports/compliance_matrix.jsonld
-            echo "✅ Compliance matrix refreshed successfully!"
-            
-            # Clean up temporary directory
-            rm -rf "$TEMP_DIR"
-        else
-            # Check if it's in a subdirectory
-            if [ -d "$TEMP_DIR/compliance-matrix-jsonld" ]; then
-                cp "$TEMP_DIR/compliance-matrix-jsonld/compliance_matrix.jsonld" compliance/dashboard/compliance_matrix.jsonld
-                cp "$TEMP_DIR/compliance-matrix-jsonld/compliance_matrix.jsonld" compliance/reports/compliance_matrix.jsonld
-                echo "✅ Compliance matrix refreshed successfully!"
+        # Check if the file exists directly or in a subdirectory
+        if [[ -f "compliance/results/ios/test-results.jsonld" ]]; then
+            log "✅ iOS test results downloaded."
+        elif [[ -d "compliance/results/ios" ]]; then
+            # Look for the file in any subdirectory
+            FOUND_FILE=$(find "compliance/results/ios" -name "test-results.jsonld" -type f | head -n 1)
+            if [[ -n "$FOUND_FILE" ]]; then
+                # Move the file to the expected location
+                cp "$FOUND_FILE" "compliance/results/ios/test-results.jsonld"
+                log "✅ iOS test results downloaded."
             else
-                echo "⚠️ Could not find compliance_matrix.jsonld in the downloaded artifact!"
+                log "⚠️ iOS test results not found in the downloaded artifact."
             fi
-            
-            # Clean up temporary directory
-            rm -rf "$TEMP_DIR"
+        else
+            log "⚠️ iOS test results download failed."
         fi
     else
-        echo "⚠️ No completed workflow runs found."
+        log "⚠️ No iOS workflow runs found."
     fi
     
-    # Ensure the requirements file is accessible to the dashboard
-    if [ -f "requirements/requirements.jsonld" ]; then
-        # Create a directory for requirements and copy the file
-        mkdir -p compliance/requirements/
-        cp requirements/requirements.jsonld compliance/requirements/
+    # Download Android test results
+    log "🤖 Android: Downloading test results from latest workflow run..."
+    # Get the latest run ID for Android workflow
+    ANDROID_RUN_ID=$(gh run list --repo journalbrand/todo-android --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    if [[ -n "$ANDROID_RUN_ID" ]]; then
+        log "🤖 Android: Downloading test results from run $ANDROID_RUN_ID..."
+        gh run download $ANDROID_RUN_ID --repo journalbrand/todo-android --name android-test-results-jsonld --dir compliance/results/android 2>/dev/null
+        
+        # Check if the file exists directly or in a subdirectory
+        if [[ -f "compliance/results/android/test-results.jsonld" ]]; then
+            log "✅ Android test results downloaded."
+        elif [[ -d "compliance/results/android" ]]; then
+            # Look for the file in any subdirectory
+            FOUND_FILE=$(find "compliance/results/android" -name "test-results.jsonld" -type f | head -n 1)
+            if [[ -n "$FOUND_FILE" ]]; then
+                # Move the file to the expected location
+                cp "$FOUND_FILE" "compliance/results/android/test-results.jsonld"
+                log "✅ Android test results downloaded."
+            else
+                log "⚠️ Android test results not found in the downloaded artifact."
+            fi
+        else
+            log "⚠️ Android test results download failed."
+        fi
+    else
+        log "⚠️ No Android workflow runs found."
     fi
+    
+    # Download IPFS test results
+    log "📦 IPFS: Downloading test results from latest workflow run..."
+    # Get the latest run ID for IPFS workflow
+    IPFS_RUN_ID=$(gh run list --repo journalbrand/todo-ipfs --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    if [[ -n "$IPFS_RUN_ID" ]]; then
+        log "📦 IPFS: Downloading test results from run $IPFS_RUN_ID..."
+        gh run download $IPFS_RUN_ID --repo journalbrand/todo-ipfs --name ipfs-test-results-jsonld --dir compliance/results/ipfs 2>/dev/null
+        
+        # Check if the file exists directly or in a subdirectory
+        if [[ -f "compliance/results/ipfs/test-results.jsonld" ]]; then
+            log "✅ IPFS test results downloaded."
+        elif [[ -d "compliance/results/ipfs" ]]; then
+            # Look for the file in any subdirectory
+            FOUND_FILE=$(find "compliance/results/ipfs" -name "test-results.jsonld" -type f | head -n 1)
+            if [[ -n "$FOUND_FILE" ]]; then
+                # Move the file to the expected location
+                cp "$FOUND_FILE" "compliance/results/ipfs/test-results.jsonld"
+                log "✅ IPFS test results downloaded."
+            else
+                log "⚠️ IPFS test results not found in the downloaded artifact."
+            fi
+        else
+            log "⚠️ IPFS test results download failed."
+        fi
+    else
+        log "⚠️ No IPFS workflow runs found."
+    fi
+    
+    # Generate fresh compliance matrix from test results
+    log "🔄 Generating fresh compliance matrix from test results..."
+    # Check if at least one test result file exists
+    TEST_RESULTS_COUNT=$(find "compliance/results" -name "test-results.jsonld" -type f | wc -l)
+    if [[ "$TEST_RESULTS_COUNT" -gt 0 ]]; then
+        # Run the aggregation script
+        ./compliance/scripts/aggregate_jsonld_compliance.sh compliance/results compliance/dashboard >> "$LOGFILE" 2>&1
+        if [[ $? -eq 0 ]]; then
+            log "✅ Fresh compliance matrix generated from test results."
+            return 0
+        else
+            log "⚠️ Error generating compliance matrix from test results."
+        fi
+    else
+        log "⚠️ No test result files found. Will download pre-built compliance matrix."
+    fi
+    
+    # If we couldn't generate a fresh matrix, try to download a pre-built one
+    log "📥 Downloading latest compliance matrix artifact..."
+    # Get the latest run ID for compliance matrix workflow
+    RUN_ID=$(gh run list --workflow=compliance-matrix.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
+    if [[ -n "$RUN_ID" ]]; then
+        log "📥 Downloading compliance matrix from run $RUN_ID..."
+        gh run download $RUN_ID --name compliance-matrix-jsonld --dir compliance/dashboard 2>/dev/null
+        
+        if [[ $? -eq 0 ]]; then
+            log "✅ Downloaded compliance matrix successfully."
+            return 0
+        else
+            log "⚠️ Failed to download compliance matrix."
+        fi
+    else
+        log "⚠️ No compliance matrix workflow runs found."
+    fi
+    
+    # If downloaded matrix exists, copy to dashboard directory
+    if [[ -f "compliance/reports/compliance_matrix.jsonld" ]]; then
+        cp "compliance/reports/compliance_matrix.jsonld" "compliance/dashboard/compliance_matrix.jsonld"
+        log "✅ Using existing compliance matrix."
+        return 0
+    fi
+    
+    # If requirements.json exists, create a minimal dashboard
+    if [[ -f "requirements/requirements.jsonld" ]]; then
+        log "ℹ️ Creating minimal dashboard from requirements only."
+        cp "requirements/requirements.jsonld" "compliance/dashboard/requirements.jsonld"
+        return 0
+    fi
+    
+    log "❌ Could not obtain compliance matrix or requirements."
+    return 1
 }
 
-# Initial check for GitHub CLI
-echo "🔍 Checking for GitHub CLI..."
-if ! command -v gh &> /dev/null; then
-    echo "⚠️ GitHub CLI not found. Please install it to download the latest compliance matrix."
-    echo "Visit: https://cli.github.com/"
-    echo "Continuing with existing files (if any)..."
-else
-    echo "✅ GitHub CLI found."
-    # Initial download of compliance matrix
-    download_compliance_matrix
-fi
+# Download compliance matrix initially
+download_compliance_matrix
 
-# Start the auto-refresh process in the background
-auto_refresh_compliance_matrix() {
+# Start auto-refresh in the background
+(
     while true; do
         sleep 60
+        log "🔄 Auto-refreshing compliance matrix data..."
         download_compliance_matrix
     done
-}
-auto_refresh_compliance_matrix &
-REFRESH_PID=$!
+) &
 
-# Trap to kill the background auto-refresh process when the script exits
-trap 'echo "Shutting down auto-refresh process..."; kill $REFRESH_PID 2>/dev/null; exit' INT TERM EXIT
+# Save the PID of the background process
+echo $! > "$PID_FILE"
 
-echo "⏱️ Auto-refresh is enabled - compliance matrix will update every 60 seconds"
-echo "🌐 Starting Compliance Dashboard server on http://localhost:$PORT"
-echo "📊 Dashboard will be available at: http://localhost:$PORT/compliance/dashboard/"
-echo "⚠️ Press Ctrl+C to stop the server and auto-refresh"
+log "⏱️ Auto-refresh is enabled - compliance matrix will update every 60 seconds"
+log "🌐 Starting Compliance Dashboard server on http://localhost:$PORT"
+log "📊 Dashboard will be available at: http://localhost:$PORT/compliance/dashboard/"
+log "⚠️ Press Ctrl+C to stop the server and auto-refresh"
 
 # Open the dashboard in the default browser (after a short delay to let the server start)
 (sleep 1 && open "http://localhost:$PORT/compliance/dashboard/") &
@@ -109,6 +236,6 @@ elif command -v python &>/dev/null; then
         python -m SimpleHTTPServer $PORT
     fi
 else
-    echo "❌ Error: Python is not installed. Please install Python to run this server."
+    log "❌ Error: Python is not installed. Please install Python to run this server."
     exit 1
 fi 
