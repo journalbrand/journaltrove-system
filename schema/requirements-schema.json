@@ -13,7 +13,7 @@
       ]
     },
     "@graph": {
-      "type": "array",
+      "type": "array", 
       "description": "The collection of requirements, components, and tests",
       "items": {
         "type": "object",
@@ -35,16 +35,6 @@
           "description": {
             "type": "string",
             "description": "Detailed description"
-          },
-          "dateCreated": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Date when the item was created"
-          },
-          "dateModified": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Date when the item was last modified"
           },
           "version": {
             "type": "string",
@@ -80,11 +70,6 @@
             "type": "string",
             "description": "Result of the test execution",
             "enum": ["Passed", "Failed", "Pending", "Skipped"]
-          },
-          "testDate": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Date when the test was last executed"
           },
           "testEnvironment": {
             "type": "string",
