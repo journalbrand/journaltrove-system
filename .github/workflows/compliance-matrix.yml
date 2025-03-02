@@ -84,7 +84,7 @@ jobs:
           name: ios-test-results-jsonld
           path: compliance/results/ios
           repo: journalbrand/todo-ios
-          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
           
@@ -96,7 +96,7 @@ jobs:
           name: android-test-results-jsonld
           path: compliance/results/android
           repo: journalbrand/todo-android
-          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
           
@@ -108,7 +108,7 @@ jobs:
           name: ipfs-test-results-jsonld
           path: compliance/results/ipfs
           repo: journalbrand/todo-ipfs
-          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
       
