@@ -73,10 +73,6 @@ jobs:
           mkdir -p compliance/results
           mkdir -p compliance/reports
         
-      - name: 📝 Extract GitHub token from .env
-        run: |
-          echo "GITHUB_PAT=$(grep github_token .env | cut -d= -f2)" >> $GITHUB_ENV
-        
       - name: 📥 Download iOS Test Results
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -85,7 +81,7 @@ jobs:
           name: ios-test-results-jsonld
           path: compliance/results/ios
           repo: journalbrand/todo-ios
-          token: ${{ env.GITHUB_PAT }}
+          token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
           
@@ -97,7 +93,7 @@ jobs:
           name: android-test-results-jsonld
           path: compliance/results/android
           repo: journalbrand/todo-android
-          token: ${{ env.GITHUB_PAT }}
+          token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
           
@@ -109,7 +105,7 @@ jobs:
           name: ipfs-test-results-jsonld
           path: compliance/results/ipfs
           repo: journalbrand/todo-ipfs
-          token: ${{ env.GITHUB_PAT }}
+          token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
       
