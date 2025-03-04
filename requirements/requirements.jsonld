@@ -68,7 +68,7 @@
       "parent": "System"
     },
     {
-      "id": "IPFS-1",
+      "id": "System.1.IPFS",
       "type": "Requirement",
       "name": "DID Identity Management",
       "description": "Nodes store and publish user and robot DID identity documents via IPFS/IPNS",
@@ -77,27 +77,27 @@
       "component": "System.IPFS"
     },
     {
-      "id": "IPFS-1.1",
+      "id": "System.1.1.IPFS",
       "type": "Requirement",
       "name": "DID Document Format",
       "description": "Each DID document stored in JSON/IPLD format, signed cryptographically",
       "status": "Draft",
       "priority": "High",
       "component": "System.IPFS",
-      "parent": "IPFS-1"
+      "parent": "System.1.IPFS"
     },
     {
-      "id": "FR-1.1",
+      "id": "System.2.1.IPFS",
       "type": "Requirement",
       "name": "DID Resolution Performance",
       "description": "Nodes maintain a local cache for DID documents, supporting fast resolution (<500ms typical latency)",
       "status": "Draft",
       "priority": "Medium",
       "component": "System.IPFS",
-      "parent": "IPFS-1"
+      "parent": "System.1.IPFS"
     },
     {
-      "id": "FR-1.2",
+      "id": "System.2.2.IPFS",
       "type": "Requirement",
       "name": "Journal Policy Enforcement",
       "description": "Nodes enforce journal policy compliance at roster updates, rejecting unauthorized identities",
@@ -106,7 +106,7 @@
       "component": "System.IPFS"
     },
     {
-      "id": "FR-1.3",
+      "id": "System.2.3.IPFS",
       "type": "Requirement",
       "name": "Journal Creation",
       "description": "Nodes enable journal creation, publishing signed JournalMap structures via IPNS",
@@ -115,7 +115,7 @@
       "component": "System.IPFS"
     },
     {
-      "id": "SR-1.1",
+      "id": "System.3.1.IPFS",
       "type": "Requirement",
       "name": "Identity Attestation",
       "description": "Nodes enforce mandatory attestation checks for all identities (human/robot) before acceptance",
@@ -124,7 +124,7 @@
       "component": "System.IPFS"
     },
     {
-      "id": "SR-1.2",
+      "id": "System.3.2.IPFS",
       "type": "Requirement",
       "name": "Roster Update Validation",
       "description": "Nodes refuse membership roster updates violating explicitly declared journal policy",
@@ -133,7 +133,7 @@
       "component": "System.IPFS"
     },
     {
-      "id": "FR-2.1",
+      "id": "System.4.1",
       "type": "Requirement",
       "name": "Secure Identity Key Generation",
       "description": "Identity keys generated exclusively within device secure enclaves",
@@ -142,27 +142,27 @@
       "component": "System"
     },
     {
-      "id": "FR-2.1.iOS",
+      "id": "System.4.1.iOS",
       "type": "Requirement",
       "name": "iOS Secure Identity Key Generation",
       "description": "iOS identity keys generated exclusively within Secure Enclave",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "FR-2.1"
+      "parent": "System.4.1"
     },
     {
-      "id": "FR-2.1.Android",
+      "id": "System.4.1.Android",
       "type": "Requirement",
       "name": "Android Secure Identity Key Generation",
       "description": "Android identity keys generated exclusively within StrongBox",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "FR-2.1"
+      "parent": "System.4.1"
     },
     {
-      "id": "FR-2.2",
+      "id": "System.4.2",
       "type": "Requirement",
       "name": "Biometric Key Authorization",
       "description": "Explicit biometric or PIN authorization required for all identity key accesses and migrations",
@@ -171,27 +171,27 @@
       "component": "System"
     },
     {
-      "id": "FR-2.2.iOS",
+      "id": "System.4.2.iOS",
       "type": "Requirement",
       "name": "iOS Biometric Key Authorization",
       "description": "iOS client requires explicit biometric or PIN authorization for all identity key accesses",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "FR-2.2"
+      "parent": "System.4.2"
     },
     {
-      "id": "FR-2.2.Android",
+      "id": "System.4.2.Android",
       "type": "Requirement",
       "name": "Android Biometric Key Authorization",
       "description": "Android client requires explicit biometric or PIN authorization for all identity key accesses",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "FR-2.2"
+      "parent": "System.4.2"
     },
     {
-      "id": "FR-2.3",
+      "id": "System.4.3",
       "type": "Requirement",
       "name": "DID Document Publishing",
       "description": "Applications explicitly publish DID documents to IPNS via Kubo nodes",
@@ -200,27 +200,27 @@
       "component": "System"
     },
     {
-      "id": "FR-2.3.iOS",
+      "id": "System.4.3.iOS",
       "type": "Requirement",
       "name": "iOS DID Document Publishing",
       "description": "iOS client explicitly publishes DID documents to IPNS via Kubo nodes",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "FR-2.3"
+      "parent": "System.4.3"
     },
     {
-      "id": "FR-2.3.Android",
+      "id": "System.4.3.Android",
       "type": "Requirement",
       "name": "Android DID Document Publishing",
       "description": "Android client explicitly publishes DID documents to IPNS via Kubo nodes",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "FR-2.3"
+      "parent": "System.4.3"
     },
     {
-      "id": "FR-2.4",
+      "id": "System.4.4",
       "type": "Requirement",
       "name": "Journal Policy Enforcement",
       "description": "Clients enforce local cryptographic checks of journal policy at member invite/update",
@@ -229,27 +229,27 @@
       "component": "System"
     },
     {
-      "id": "FR-2.4.iOS",
+      "id": "System.4.4.iOS",
       "type": "Requirement",
       "name": "iOS Journal Policy Enforcement",
       "description": "iOS client enforces local cryptographic checks of journal policy at member invite/update",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "FR-2.4"
+      "parent": "System.4.4"
     },
     {
-      "id": "FR-2.4.Android",
+      "id": "System.4.4.Android",
       "type": "Requirement",
       "name": "Android Journal Policy Enforcement",
       "description": "Android client enforces local cryptographic checks of journal policy at member invite/update",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "FR-2.4"
+      "parent": "System.4.4"
     },
     {
-      "id": "FR-2.5",
+      "id": "System.4.5",
       "type": "Requirement",
       "name": "Hardware Attestation Verification",
       "description": "Clients enforce hardware attestation verification at DID import/addition",
@@ -258,27 +258,27 @@
       "component": "System"
     },
     {
-      "id": "FR-2.5.iOS",
+      "id": "System.4.5.iOS",
       "type": "Requirement",
       "name": "iOS Hardware Attestation Verification",
       "description": "iOS client enforces hardware attestation verification at DID import/addition",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "FR-2.5"
+      "parent": "System.4.5"
     },
     {
-      "id": "FR-2.5.Android",
+      "id": "System.4.5.Android",
       "type": "Requirement",
       "name": "Android Hardware Attestation Verification",
       "description": "Android client enforces hardware attestation verification at DID import/addition",
       "status": "Draft",
       "priority": "High",
       "component": "System.Android",
-      "parent": "FR-2.5"
+      "parent": "System.4.5"
     },
     {
-      "id": "QR-2.1",
+      "id": "System.5.1",
       "type": "Requirement",
       "name": "Simplified Identity Management",
       "description": "Identity management interactions simplified and jargon-free, maintaining clarity for normal users",
@@ -287,27 +287,27 @@
       "component": "System"
     },
     {
-      "id": "QR-2.1.iOS",
+      "id": "System.5.1.iOS",
       "type": "Requirement",
       "name": "iOS Simplified Identity Management",
       "description": "iOS identity management interactions simplified and jargon-free, maintaining clarity for normal users",
       "status": "Draft",
       "priority": "Medium",
       "component": "System.iOS",
-      "parent": "QR-2.1"
+      "parent": "System.5.1"
     },
     {
-      "id": "QR-2.1.Android",
+      "id": "System.5.1.Android",
       "type": "Requirement",
       "name": "Android Simplified Identity Management",
       "description": "Android identity management interactions simplified and jargon-free, maintaining clarity for normal users",
       "status": "Draft",
       "priority": "Medium",
       "component": "System.Android",
-      "parent": "QR-2.1"
+      "parent": "System.5.1"
     },
     {
-      "id": "QR-2.2",
+      "id": "System.5.2",
       "type": "Requirement",
       "name": "Transparent Notifications",
       "description": "Explicit notifications guide user acceptance of metadata/signature changes transparently",
@@ -316,27 +316,27 @@
       "component": "System"
     },
     {
-      "id": "QR-2.2.iOS",
+      "id": "System.5.2.iOS",
       "type": "Requirement",
       "name": "iOS Transparent Notifications",
       "description": "iOS client provides explicit notifications to guide user acceptance of metadata/signature changes transparently",
       "status": "Draft",
       "priority": "Medium",
       "component": "System.iOS",
-      "parent": "QR-2.2"
+      "parent": "System.5.2"
     },
     {
-      "id": "QR-2.2.Android",
+      "id": "System.5.2.Android",
       "type": "Requirement",
       "name": "Android Transparent Notifications",
       "description": "Android client provides explicit notifications to guide user acceptance of metadata/signature changes transparently",
       "status": "Draft",
       "priority": "Medium",
       "component": "System.Android",
-      "parent": "QR-2.2"
+      "parent": "System.5.2"
     },
     {
-      "id": "FR-3.1",
+      "id": "System.6.1.Linux",
       "type": "Requirement",
       "name": "Secure Identity Migration",
       "description": "Human user securely migrates and extends their identity key onto the secure cloud environment",
@@ -345,7 +345,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.2",
+      "id": "System.6.2.Linux",
       "type": "Requirement",
       "name": "Robot Identity References",
       "description": "Robots explicitly reference human owner identity DID; robot metadata signed by human owner identity private key",
@@ -354,7 +354,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.3",
+      "id": "System.6.3.Linux",
       "type": "Requirement",
       "name": "Robot Capability Metadata",
       "description": "Robot identity metadata explicitly enumerates robot capabilities",
@@ -363,7 +363,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.4",
+      "id": "System.6.4.Linux",
       "type": "Requirement",
       "name": "Secure Enclave Execution",
       "description": "Robot computation executed explicitly within cryptographically attested secure enclaves",
@@ -372,7 +372,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.5",
+      "id": "System.6.5.Linux",
       "type": "Requirement",
       "name": "Identity Cloud Transfer",
       "description": "Owner transfers identity onto cloud secure enclave environment through ephemeral device key migration",
@@ -381,7 +381,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.6",
+      "id": "System.6.6.Linux",
       "type": "Requirement",
       "name": "Secure IPFS Interaction",
       "description": "Cloud robots interact with Kubo/IPFS nodes via cryptographically secure channels",
@@ -390,7 +390,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.7",
+      "id": "System.6.7.Linux",
       "type": "Requirement",
       "name": "Robot Admission Control",
       "description": "Robot identity/capabilities metadata enforced at journal admission explicitly",
@@ -399,7 +399,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "FR-3.8",
+      "id": "System.6.8.Linux",
       "type": "Requirement",
       "name": "Robot Computation Constraints",
       "description": "Robot computation strictly limited by declared firewall, software/network settings, with cryptographically signed metadata",
@@ -408,7 +408,7 @@
       "component": "System.Linux"
     },
     {
-      "id": "PR-1",
+      "id": "System.7.1",
       "type": "Requirement",
       "name": "Symbolic Logic & Inference",
       "description": "Symbolic logic & interpretable robotic inference",
@@ -417,7 +417,7 @@
       "component": "System"
     },
     {
-      "id": "PR-2",
+      "id": "System.7.2",
       "type": "Requirement",
       "name": "Cryptographic Firewall Settings",
       "description": "Strictly locked network/firewall settings via cryptographic signatures",
@@ -426,7 +426,7 @@
       "component": "System"
     },
     {
-      "id": "PR-3",
+      "id": "System.7.3",
       "type": "Requirement",
       "name": "Black-box Inference Prohibitions",
       "description": "Explicit black-box inference prohibitions",
