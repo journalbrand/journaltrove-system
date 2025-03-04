@@ -16,6 +16,34 @@ jobs:
       - name: 📥 Checkout System Repository
         uses: actions/checkout@v4
       
+      - name: 🧹 Clean Up Any Existing Test Results
+        run: |
+          echo "Cleaning up any existing generated JSON-LD files..."
+          
+          # Remove all test result files
+          rm -rf compliance/results
+          
+          # Remove all compliance matrix files
+          rm -rf compliance/reports
+          rm -f compliance/dashboard/compliance_matrix.jsonld
+          rm -f compliance_matrix.jsonld
+          
+          # Remove any cloud artifacts directory
+          rm -rf cloud_artifacts
+          
+          # Remove any temp directories and files
+          rm -rf temp
+          rm -rf tmp
+          
+          # Remove component temporary files
+          rm -rf components
+          
+          echo "✅ Cleanup completed. All generated JSON-LD files have been removed."
+          
+          # Verify what remains (for debugging)
+          echo "Remaining .jsonld files (only source files should be listed):"
+          find . -name "*.jsonld" | grep -v "requirements.jsonld\|requirements-context.jsonld\|test-results-template.jsonld" || echo "No unexpected .jsonld files found"
+      
       - name: 🔧 Setup jq
         run: sudo apt-get update && sudo apt-get install -y jq
       
