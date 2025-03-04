@@ -156,18 +156,23 @@ jobs:
             local run_id=$2
             local name=$3
             
+            # Add debugging for the API call
+            echo "Checking status of $name workflow (ID: $run_id)"
             STATUS=$(gh run view $run_id --repo $repo --json status --jq '.status')
+            echo "  Raw status: $STATUS"
+            
             if [[ "$STATUS" == "completed" ]]; then
               CONCLUSION=$(gh run view $run_id --repo $repo --json conclusion --jq '.conclusion')
               echo "$name CI workflow completed with status: $CONCLUSION"
               if [[ "$CONCLUSION" != "success" ]]; then
                 echo "::error::$name CI workflow failed!"
-                return 1
+                echo "FAILED" # Output instead of return code
+              else
+                echo "SUCCESS" # Output instead of return code
               fi
-              return 0
             else
               echo "$name CI workflow is still running..."
-              return 2
+              echo "RUNNING" # Output instead of return code
             fi
           }
           
@@ -177,37 +182,51 @@ jobs:
           ANDROID_DONE=false
           IPFS_DONE=false
           
-          while true; do
-            # Check all workflows that haven't completed yet
+          # Use a counter instead of infinite loop to avoid potential runner issues
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
+          
+          set +e  # Disable automatic exit on error for this section
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Checking workflows (attempt $ATTEMPT of $MAX_ATTEMPTS)..."
             
+            # Check all workflows that haven't completed yet
             if [[ "$IOS_DONE" != "true" ]]; then
-              check_workflow_status "journalbrand/journaltrove-ios" $IOS_RUN_ID "iOS"
-              RESULT=$?
-              if [[ $RESULT -eq 0 ]]; then
+              echo "Checking iOS workflow..."
+              IOS_STATUS=$(check_workflow_status "journalbrand/journaltrove-ios" $IOS_RUN_ID "iOS")
+              echo "iOS status: $IOS_STATUS"
+              if [[ "$IOS_STATUS" == *"SUCCESS"* ]]; then
                 IOS_DONE=true
-              elif [[ $RESULT -eq 1 ]]; then
+                echo "iOS workflow complete and successful"
+              elif [[ "$IOS_STATUS" == *"FAILED"* ]]; then
                 echo "iOS workflow failed, aborting orchestration"
                 exit 1
               fi
             fi
             
             if [[ "$ANDROID_DONE" != "true" ]]; then
-              check_workflow_status "journalbrand/journaltrove-android" $ANDROID_RUN_ID "Android"
-              RESULT=$?
-              if [[ $RESULT -eq 0 ]]; then
+              echo "Checking Android workflow..."
+              ANDROID_STATUS=$(check_workflow_status "journalbrand/journaltrove-android" $ANDROID_RUN_ID "Android")
+              echo "Android status: $ANDROID_STATUS"
+              if [[ "$ANDROID_STATUS" == *"SUCCESS"* ]]; then
                 ANDROID_DONE=true
-              elif [[ $RESULT -eq 1 ]]; then
+                echo "Android workflow complete and successful"
+              elif [[ "$ANDROID_STATUS" == *"FAILED"* ]]; then
                 echo "Android workflow failed, aborting orchestration"
                 exit 1
               fi
             fi
             
             if [[ "$IPFS_DONE" != "true" ]]; then
-              check_workflow_status "journalbrand/journaltrove-ipfs" $IPFS_RUN_ID "IPFS"
-              RESULT=$?
-              if [[ $RESULT -eq 0 ]]; then
+              echo "Checking IPFS workflow..."
+              IPFS_STATUS=$(check_workflow_status "journalbrand/journaltrove-ipfs" $IPFS_RUN_ID "IPFS")
+              echo "IPFS status: $IPFS_STATUS"
+              if [[ "$IPFS_STATUS" == *"SUCCESS"* ]]; then
                 IPFS_DONE=true
-              elif [[ $RESULT -eq 1 ]]; then
+                echo "IPFS workflow complete and successful"
+              elif [[ "$IPFS_STATUS" == *"FAILED"* ]]; then
                 echo "IPFS workflow failed, aborting orchestration"
                 exit 1
               fi
@@ -223,6 +242,17 @@ jobs:
             echo "At least one workflow is still running, checking again in 30 seconds..."
             sleep 30
           done
+          
+          set -e  # Re-enable automatic exit on error
+          
+          # If we reached maximum attempts, check which workflows are still not done
+          if [[ "$IOS_DONE" != "true" || "$ANDROID_DONE" != "true" || "$IPFS_DONE" != "true" ]]; then
+            echo "::error::Timed out waiting for workflows to complete"
+            [[ "$IOS_DONE" != "true" ]] && echo "::error::iOS workflow did not complete in time"
+            [[ "$ANDROID_DONE" != "true" ]] && echo "::error::Android workflow did not complete in time"
+            [[ "$IPFS_DONE" != "true" ]] && echo "::error::IPFS workflow did not complete in time"
+            exit 1
+          fi
 
   trigger-system-workflows:
     name: 🔄 Trigger System Workflows
