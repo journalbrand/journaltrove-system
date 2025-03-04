@@ -70,3 +70,11 @@ dashboard.log
 .dashboard_refresh.pid
 dashboard.pid
 compliance/dashboard/compliance_matrix.jsonld
+
+# Test Results
+compliance/results/**/test-results.jsonld
+**/test-results.jsonld
+
+# Temporary files
+temp/
+.dashboard_refresh.pid

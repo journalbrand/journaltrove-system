@@ -39,6 +39,48 @@ jobs:
           github_token: ${{ secrets.CROSS_REPO_TOKEN }}
           check_artifacts: true
           if_no_artifact_found: warn
+
+      - name: 📂 Create Compliance Results Directories
+        run: |
+          mkdir -p compliance/results/ios
+          mkdir -p compliance/results/android
+          mkdir -p compliance/results/ipfs
+          
+      - name: 📥 Download iOS Test Results
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          name: ios-test-results-jsonld
+          path: compliance/results/ios
+          repo: journalbrand/journaltrove-ios
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: error
+          
+      - name: 📥 Download Android Test Results
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          name: android-test-results-jsonld
+          path: compliance/results/android
+          repo: journalbrand/journaltrove-android
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: error
+          
+      - name: 📥 Download IPFS Test Results
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          name: ipfs-test-results-jsonld
+          path: compliance/results/ipfs
+          repo: journalbrand/journaltrove-ipfs
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: error
           
       - name: 🔍 Validate Compliance Matrix
         run: |
@@ -84,13 +126,24 @@ jobs:
             exit 1
           fi
           
+      - name: 🔍 Validate Test Results JSON-LD Format
+        run: |
+          # Validate the JSON syntax of each test result file
+          echo "Validating iOS test results format..."
+          jq empty compliance/results/ios/test-results.jsonld
+          
+          echo "Validating Android test results format..."
+          jq empty compliance/results/android/test-results.jsonld
+          
+          echo "Validating IPFS test results format..."
+          jq empty compliance/results/ipfs/test-results.jsonld
+          
+          echo "✅ All test result files have valid JSON-LD syntax"
+          
       - name: 🔍 Validate Requirement ID References
         run: |
           # Make validation script executable
           chmod +x scripts/validate-requirement-ids.js
-          
-          # Create results directory if it doesn't exist
-          mkdir -p compliance/results
           
           # If we have the compliance matrix, copy it to the results directory for validation
           if [ -f "compliance/reports/compliance_matrix.jsonld" ]; then
