@@ -7,7 +7,7 @@
       "name": "journaltrove App System",
       "description": "The complete journaltrove App ecosystem spanning mobile clients and IPFS nodes",
       "version": "0.1.0",
-      "dateCreated": "2025-03-02T00:00:00Z",
+      "dateCreated": "2025-03-04T00:00:00Z",
       "components": [
         "System.iOS",
         "System.Android",
@@ -67,372 +67,365 @@
       "description": "Windows-based IPFS node for pinning and serving journal content",
       "parent": "System"
     },
+    
     {
-      "id": "System.1.IPFS",
+      "id": "System.1",
       "type": "Requirement",
-      "name": "DID Identity Management",
-      "description": "Nodes store and publish user and robot DID identity documents via IPFS/IPNS",
+      "name": "IPFS/IPNS Storage and Resolution",
+      "description": "The system shall utilize IPFS for secure, distributed data storage and IPNS for identity resolution",
       "status": "Draft",
       "priority": "High",
-      "component": "System.IPFS"
+      "component": "System"
     },
     {
-      "id": "System.1.1.IPFS",
+      "id": "System.1.1",
       "type": "Requirement",
-      "name": "DID Document Format",
-      "description": "Each DID document stored in JSON/IPLD format, signed cryptographically",
+      "name": "DID Identity Document Storage",
+      "description": "The system shall store and publish user and robot DID identity documents via IPFS/IPNS",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.1"
+    },
+    {
+      "id": "System.1.2",
+      "type": "Requirement",
+      "name": "Local DID Document Caching",
+      "description": "The system shall maintain a local cache for DID documents, supporting fast resolution (<500ms typical latency)",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System",
+      "parent": "System.1"
+    },
+    {
+      "id": "System.1.3",
+      "type": "Requirement",
+      "name": "Journal IPNS Publication",
+      "description": "The system shall enable journal creation, publishing signed JournalMap structures via IPNS",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.1"
+    },
+    {
+      "id": "System.1.1.IPFS.1",
+      "type": "Requirement",
+      "name": "IPFS DID Document Storage",
+      "description": "The IPFS node shall store and publish DID documents in JSON/IPLD format with cryptographic signatures",
       "status": "Draft",
       "priority": "High",
       "component": "System.IPFS",
-      "parent": "System.1.IPFS"
+      "parent": "System.1.1"
     },
     {
-      "id": "System.2.1.IPFS",
+      "id": "System.1.2.IPFS.1",
       "type": "Requirement",
-      "name": "DID Resolution Performance",
-      "description": "Nodes maintain a local cache for DID documents, supporting fast resolution (<500ms typical latency)",
+      "name": "IPFS DID Document Caching",
+      "description": "The IPFS node shall maintain a local cache for DID documents with fast resolution times",
       "status": "Draft",
       "priority": "Medium",
       "component": "System.IPFS",
-      "parent": "System.1.IPFS"
+      "parent": "System.1.2"
     },
     {
-      "id": "System.2.2.IPFS",
+      "id": "System.1.3.IPFS.1",
+      "type": "Requirement",
+      "name": "IPFS Journal IPNS Publication",
+      "description": "The IPFS node shall support publishing signed JournalMap structures via IPNS",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.IPFS",
+      "parent": "System.1.3"
+    },
+    
+    {
+      "id": "System.2",
+      "type": "Requirement",
+      "name": "Identity and Key Management",
+      "description": "The system shall provide secure identity management capabilities with hardware-backed keys",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.2.1",
+      "type": "Requirement",
+      "name": "Hardware-Backed Key Generation",
+      "description": "The system shall generate cryptographic keys exclusively within secure hardware enclaves",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.2"
+    },
+    {
+      "id": "System.2.2",
+      "type": "Requirement",
+      "name": "Biometric/PIN Authorization",
+      "description": "The system shall require explicit biometric or PIN authorization for all identity key accesses and migrations",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.2"
+    },
+    {
+      "id": "System.2.3",
+      "type": "Requirement",
+      "name": "DID Document Publication",
+      "description": "The system shall publish DID documents to IPNS via Kubo nodes",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.2"
+    },
+    {
+      "id": "System.2.1.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Secure Enclave Key Generation",
+      "description": "The iOS client shall generate identity keys exclusively within the device Secure Enclave",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "System.2.1"
+    },
+    {
+      "id": "System.2.1.Android.1",
+      "type": "Requirement",
+      "name": "Android StrongBox Key Generation",
+      "description": "The Android client shall generate identity keys exclusively within the device StrongBox secure hardware",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "System.2.1"
+    },
+    {
+      "id": "System.2.2.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Biometric/PIN Authorization",
+      "description": "The iOS client shall require biometric or PIN authorization for all identity key operations",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "System.2.2"
+    },
+    {
+      "id": "System.2.2.Android.1",
+      "type": "Requirement",
+      "name": "Android Biometric/PIN Authorization",
+      "description": "The Android client shall require biometric or PIN authorization for all identity key operations",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "System.2.2"
+    },
+    
+    {
+      "id": "System.3",
+      "type": "Requirement",
+      "name": "Journal Interaction",
+      "description": "The system shall enforce journal policy and provide secure journal interaction",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.3.1",
       "type": "Requirement",
       "name": "Journal Policy Enforcement",
-      "description": "Nodes enforce journal policy compliance at roster updates, rejecting unauthorized identities",
+      "description": "The system shall enforce journal policy compliance at roster updates, rejecting unauthorized identities",
       "status": "Draft",
       "priority": "High",
-      "component": "System.IPFS"
+      "component": "System",
+      "parent": "System.3"
     },
     {
-      "id": "System.2.3.IPFS",
+      "id": "System.3.2",
       "type": "Requirement",
-      "name": "Journal Creation",
-      "description": "Nodes enable journal creation, publishing signed JournalMap structures via IPNS",
+      "name": "UI Notifications for Identity Updates",
+      "description": "The system shall provide explicit UI notifications for identity metadata updates, requiring user acceptance",
       "status": "Draft",
-      "priority": "High",
-      "component": "System.IPFS"
+      "priority": "Medium",
+      "component": "System",
+      "parent": "System.3"
     },
     {
-      "id": "System.3.1.IPFS",
+      "id": "System.3.1.iOS.1",
       "type": "Requirement",
-      "name": "Identity Attestation",
-      "description": "Nodes enforce mandatory attestation checks for all identities (human/robot) before acceptance",
+      "name": "iOS Journal Policy Enforcement",
+      "description": "The iOS client shall enforce local cryptographic checks of journal policy at member invite/update",
       "status": "Draft",
       "priority": "High",
-      "component": "System.IPFS"
+      "component": "System.iOS",
+      "parent": "System.3.1"
     },
     {
-      "id": "System.3.2.IPFS",
+      "id": "System.3.1.Android.1",
       "type": "Requirement",
-      "name": "Roster Update Validation",
-      "description": "Nodes refuse membership roster updates violating explicitly declared journal policy",
+      "name": "Android Journal Policy Enforcement",
+      "description": "The Android client shall enforce local cryptographic checks of journal policy at member invite/update",
       "status": "Draft",
       "priority": "High",
-      "component": "System.IPFS"
+      "component": "System.Android",
+      "parent": "System.3.1"
+    },
+    {
+      "id": "System.3.1.IPFS.1",
+      "type": "Requirement",
+      "name": "IPFS Journal Policy Enforcement",
+      "description": "The IPFS node shall enforce journal policy compliance at roster updates, rejecting unauthorized identities",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.IPFS",
+      "parent": "System.3.1"
+    },
+    {
+      "id": "System.3.2.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Identity Update Notifications",
+      "description": "The iOS client shall provide explicit UI notifications for identity metadata updates, requiring user acceptance",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System.iOS",
+      "parent": "System.3.2"
+    },
+    {
+      "id": "System.3.2.Android.1",
+      "type": "Requirement",
+      "name": "Android Identity Update Notifications",
+      "description": "The Android client shall provide explicit UI notifications for identity metadata updates, requiring user acceptance",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System.Android",
+      "parent": "System.3.2"
+    },
+    
+    {
+      "id": "System.4",
+      "type": "Requirement",
+      "name": "Robot Management",
+      "description": "The system shall support secure robot identity and capability management",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
     },
     {
       "id": "System.4.1",
       "type": "Requirement",
-      "name": "Secure Identity Key Generation",
-      "description": "Identity keys generated exclusively within device secure enclaves",
+      "name": "Robot Identity Creation",
+      "description": "The system shall support robot identities with hardware-backed keys",
       "status": "Draft",
       "priority": "High",
-      "component": "System"
-    },
-    {
-      "id": "System.4.1.iOS",
-      "type": "Requirement",
-      "name": "iOS Secure Identity Key Generation",
-      "description": "iOS identity keys generated exclusively within Secure Enclave",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.4.1"
-    },
-    {
-      "id": "System.4.1.Android",
-      "type": "Requirement",
-      "name": "Android Secure Identity Key Generation",
-      "description": "Android identity keys generated exclusively within StrongBox",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.4.1"
+      "component": "System",
+      "parent": "System.4"
     },
     {
       "id": "System.4.2",
       "type": "Requirement",
-      "name": "Biometric Key Authorization",
-      "description": "Explicit biometric or PIN authorization required for all identity key accesses and migrations",
+      "name": "Robot Owner Reference",
+      "description": "Robot identities shall explicitly reference human owner DIDs and be signed by owner private keys",
       "status": "Draft",
       "priority": "High",
-      "component": "System"
-    },
-    {
-      "id": "System.4.2.iOS",
-      "type": "Requirement",
-      "name": "iOS Biometric Key Authorization",
-      "description": "iOS client requires explicit biometric or PIN authorization for all identity key accesses",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.4.2"
-    },
-    {
-      "id": "System.4.2.Android",
-      "type": "Requirement",
-      "name": "Android Biometric Key Authorization",
-      "description": "Android client requires explicit biometric or PIN authorization for all identity key accesses",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.4.2"
+      "component": "System",
+      "parent": "System.4"
     },
     {
       "id": "System.4.3",
       "type": "Requirement",
-      "name": "DID Document Publishing",
-      "description": "Applications explicitly publish DID documents to IPNS via Kubo nodes",
+      "name": "Robot Capability Metadata",
+      "description": "Robot identity metadata shall explicitly enumerate robot capabilities",
       "status": "Draft",
-      "priority": "High",
-      "component": "System"
+      "priority": "Medium",
+      "component": "System",
+      "parent": "System.4"
     },
     {
-      "id": "System.4.3.iOS",
+      "id": "System.4.1.iOS.1",
       "type": "Requirement",
-      "name": "iOS DID Document Publishing",
-      "description": "iOS client explicitly publishes DID documents to IPNS via Kubo nodes",
+      "name": "iOS Local Robot Support",
+      "description": "The iOS client shall support local robots with secure enclave-stored identities",
       "status": "Draft",
       "priority": "High",
       "component": "System.iOS",
-      "parent": "System.4.3"
+      "parent": "System.4.1"
     },
     {
-      "id": "System.4.3.Android",
+      "id": "System.4.1.Android.1",
       "type": "Requirement",
-      "name": "Android DID Document Publishing",
-      "description": "Android client explicitly publishes DID documents to IPNS via Kubo nodes",
+      "name": "Android Local Robot Support",
+      "description": "The Android client shall support local robots with secure hardware-stored identities",
       "status": "Draft",
       "priority": "High",
-      "component": "System.Android",
-      "parent": "System.4.3"
+      "component": "System.Android", 
+      "parent": "System.4.1"
     },
     {
-      "id": "System.4.4",
+      "id": "System.4.2.Linux.1",
       "type": "Requirement",
-      "name": "Journal Policy Enforcement",
-      "description": "Clients enforce local cryptographic checks of journal policy at member invite/update",
+      "name": "Cloud Robot Owner Reference",
+      "description": "Cloud robots shall explicitly reference human owner DIDs with metadata signed by owner keys",
       "status": "Draft",
       "priority": "High",
-      "component": "System"
+      "component": "System.Linux",
+      "parent": "System.4.2"
     },
+    
     {
-      "id": "System.4.4.iOS",
+      "id": "System.5",
       "type": "Requirement",
-      "name": "iOS Journal Policy Enforcement",
-      "description": "iOS client enforces local cryptographic checks of journal policy at member invite/update",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.4.4"
-    },
-    {
-      "id": "System.4.4.Android",
-      "type": "Requirement",
-      "name": "Android Journal Policy Enforcement",
-      "description": "Android client enforces local cryptographic checks of journal policy at member invite/update",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.4.4"
-    },
-    {
-      "id": "System.4.5",
-      "type": "Requirement",
-      "name": "Hardware Attestation Verification",
-      "description": "Clients enforce hardware attestation verification at DID import/addition",
+      "name": "Security and Trust",
+      "description": "The system shall enforce hardware attestation and maintain strong security practices",
       "status": "Draft",
       "priority": "High",
       "component": "System"
-    },
-    {
-      "id": "System.4.5.iOS",
-      "type": "Requirement",
-      "name": "iOS Hardware Attestation Verification",
-      "description": "iOS client enforces hardware attestation verification at DID import/addition",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.4.5"
-    },
-    {
-      "id": "System.4.5.Android",
-      "type": "Requirement",
-      "name": "Android Hardware Attestation Verification",
-      "description": "Android client enforces hardware attestation verification at DID import/addition",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.4.5"
     },
     {
       "id": "System.5.1",
       "type": "Requirement",
-      "name": "Simplified Identity Management",
-      "description": "Identity management interactions simplified and jargon-free, maintaining clarity for normal users",
+      "name": "Hardware Attestation Verification",
+      "description": "The system shall enforce hardware attestation verification for all devices and robots",
       "status": "Draft",
-      "priority": "Medium",
-      "component": "System"
-    },
-    {
-      "id": "System.5.1.iOS",
-      "type": "Requirement",
-      "name": "iOS Simplified Identity Management",
-      "description": "iOS identity management interactions simplified and jargon-free, maintaining clarity for normal users",
-      "status": "Draft",
-      "priority": "Medium",
-      "component": "System.iOS",
-      "parent": "System.5.1"
-    },
-    {
-      "id": "System.5.1.Android",
-      "type": "Requirement",
-      "name": "Android Simplified Identity Management",
-      "description": "Android identity management interactions simplified and jargon-free, maintaining clarity for normal users",
-      "status": "Draft",
-      "priority": "Medium",
-      "component": "System.Android",
-      "parent": "System.5.1"
+      "priority": "High",
+      "component": "System",
+      "parent": "System.5"
     },
     {
       "id": "System.5.2",
       "type": "Requirement",
-      "name": "Transparent Notifications",
-      "description": "Explicit notifications guide user acceptance of metadata/signature changes transparently",
+      "name": "Closed-Source Binaries",
+      "description": "The system shall use closed-source binaries to enforce policy adherence and cryptographic trust rules",
       "status": "Draft",
       "priority": "Medium",
-      "component": "System"
+      "component": "System",
+      "parent": "System.5"
     },
     {
-      "id": "System.5.2.iOS",
+      "id": "System.5.1.iOS.1",
       "type": "Requirement",
-      "name": "iOS Transparent Notifications",
-      "description": "iOS client provides explicit notifications to guide user acceptance of metadata/signature changes transparently",
+      "name": "iOS Hardware Attestation",
+      "description": "The iOS client shall enforce hardware attestation verification at DID import/addition",
       "status": "Draft",
-      "priority": "Medium",
+      "priority": "High",
       "component": "System.iOS",
-      "parent": "System.5.2"
+      "parent": "System.5.1"
     },
     {
-      "id": "System.5.2.Android",
+      "id": "System.5.1.Android.1",
       "type": "Requirement",
-      "name": "Android Transparent Notifications",
-      "description": "Android client provides explicit notifications to guide user acceptance of metadata/signature changes transparently",
+      "name": "Android Hardware Attestation",
+      "description": "The Android client shall enforce hardware attestation verification at DID import/addition",
       "status": "Draft",
-      "priority": "Medium",
+      "priority": "High",
       "component": "System.Android",
-      "parent": "System.5.2"
+      "parent": "System.5.1"
     },
     {
-      "id": "System.6.1.Linux",
+      "id": "System.5.1.IPFS.1",
       "type": "Requirement",
-      "name": "Secure Identity Migration",
-      "description": "Human user securely migrates and extends their identity key onto the secure cloud environment",
+      "name": "IPFS Attestation Checks",
+      "description": "The IPFS node shall enforce mandatory attestation checks for all identities before acceptance",
       "status": "Draft",
       "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.2.Linux",
-      "type": "Requirement",
-      "name": "Robot Identity References",
-      "description": "Robots explicitly reference human owner identity DID; robot metadata signed by human owner identity private key",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.3.Linux",
-      "type": "Requirement",
-      "name": "Robot Capability Metadata",
-      "description": "Robot identity metadata explicitly enumerates robot capabilities",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.4.Linux",
-      "type": "Requirement",
-      "name": "Secure Enclave Execution",
-      "description": "Robot computation executed explicitly within cryptographically attested secure enclaves",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.5.Linux",
-      "type": "Requirement",
-      "name": "Identity Cloud Transfer",
-      "description": "Owner transfers identity onto cloud secure enclave environment through ephemeral device key migration",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.6.Linux",
-      "type": "Requirement",
-      "name": "Secure IPFS Interaction",
-      "description": "Cloud robots interact with Kubo/IPFS nodes via cryptographically secure channels",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.7.Linux",
-      "type": "Requirement",
-      "name": "Robot Admission Control",
-      "description": "Robot identity/capabilities metadata enforced at journal admission explicitly",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.6.8.Linux",
-      "type": "Requirement",
-      "name": "Robot Computation Constraints",
-      "description": "Robot computation strictly limited by declared firewall, software/network settings, with cryptographically signed metadata",
-      "status": "Draft",
-      "priority": "Medium",
-      "component": "System.Linux"
-    },
-    {
-      "id": "System.7.1",
-      "type": "Requirement",
-      "name": "Symbolic Logic & Inference",
-      "description": "Symbolic logic & interpretable robotic inference",
-      "status": "Parked",
-      "priority": "Low",
-      "component": "System"
-    },
-    {
-      "id": "System.7.2",
-      "type": "Requirement",
-      "name": "Cryptographic Firewall Settings",
-      "description": "Strictly locked network/firewall settings via cryptographic signatures",
-      "status": "Parked",
-      "priority": "Low",
-      "component": "System"
-    },
-    {
-      "id": "System.7.3",
-      "type": "Requirement",
-      "name": "Black-box Inference Prohibitions",
-      "description": "Explicit black-box inference prohibitions",
-      "status": "Parked",
-      "priority": "Low",
-      "component": "System"
+      "component": "System.IPFS",
+      "parent": "System.5.1"
     }
   ]
 } 
