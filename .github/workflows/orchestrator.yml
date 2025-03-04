@@ -125,93 +125,102 @@ jobs:
           # Login to GitHub CLI using the workflow token
           echo "${{ secrets.CROSS_REPO_TOKEN }}" | gh auth login --with-token
       
-      - name: 🚀 Trigger iOS CI Workflow
+      - name: 🚀 Trigger All Component CI Workflows in Parallel
         run: |
+          # Trigger all CI workflows in parallel
           echo "Triggering iOS CI workflow..."
           gh workflow run ci.yml --repo journalbrand/journaltrove-ios
           
-          # Wait for workflow to start running
-          sleep 5
-          
-          # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/journaltrove-ios --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
-          
-          echo "iOS CI workflow triggered, run ID: $RUN_ID"
-          echo "Waiting for iOS CI workflow to complete..."
-          
-          # Poll until the workflow completes
-          while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ios --json status --jq '.status')
-            if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ios --json conclusion --jq '.conclusion')
-              echo "iOS CI workflow completed with status: $CONCLUSION"
-              if [[ "$CONCLUSION" != "success" ]]; then
-                echo "::error::iOS CI workflow failed!"
-                exit 1
-              fi
-              break
-            fi
-            echo "iOS CI workflow is still running..."
-            sleep 30
-          done
-      
-      - name: 🚀 Trigger Android CI Workflow
-        run: |
           echo "Triggering Android CI workflow..."
           gh workflow run ci.yml --repo journalbrand/journaltrove-android
           
-          # Wait for workflow to start running
-          sleep 5
-          
-          # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/journaltrove-android --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
-          
-          echo "Android CI workflow triggered, run ID: $RUN_ID"
-          echo "Waiting for Android CI workflow to complete..."
-          
-          # Poll until the workflow completes
-          while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-android --json status --jq '.status')
-            if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-android --json conclusion --jq '.conclusion')
-              echo "Android CI workflow completed with status: $CONCLUSION"
-              if [[ "$CONCLUSION" != "success" ]]; then
-                echo "::error::Android CI workflow failed!"
-                exit 1
-              fi
-              break
-            fi
-            echo "Android CI workflow is still running..."
-            sleep 30
-          done
-      
-      - name: 🚀 Trigger IPFS CI Workflow
-        run: |
           echo "Triggering IPFS CI workflow..."
           gh workflow run ci.yml --repo journalbrand/journaltrove-ipfs
           
-          # Wait for workflow to start running
-          sleep 5
+          # Wait for all workflows to start running (give them some time to initialize)
+          echo "Waiting for workflows to start..."
+          sleep 10
           
-          # Get the ID of the most recent workflow run
-          RUN_ID=$(gh run list --repo journalbrand/journaltrove-ipfs --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          # Get the IDs of the most recent workflow runs
+          IOS_RUN_ID=$(gh run list --repo journalbrand/journaltrove-ios --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          ANDROID_RUN_ID=$(gh run list --repo journalbrand/journaltrove-android --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+          IPFS_RUN_ID=$(gh run list --repo journalbrand/journaltrove-ipfs --workflow=ci.yml --limit=1 --json databaseId --jq '.[0].databaseId')
           
-          echo "IPFS CI workflow triggered, run ID: $RUN_ID"
-          echo "Waiting for IPFS CI workflow to complete..."
+          echo "iOS CI workflow triggered, run ID: $IOS_RUN_ID"
+          echo "Android CI workflow triggered, run ID: $ANDROID_RUN_ID"
+          echo "IPFS CI workflow triggered, run ID: $IPFS_RUN_ID"
           
-          # Poll until the workflow completes
-          while true; do
-            STATUS=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ipfs --json status --jq '.status')
+          # Function to check workflow status
+          check_workflow_status() {
+            local repo=$1
+            local run_id=$2
+            local name=$3
+            
+            STATUS=$(gh run view $run_id --repo $repo --json status --jq '.status')
             if [[ "$STATUS" == "completed" ]]; then
-              CONCLUSION=$(gh run view $RUN_ID --repo journalbrand/journaltrove-ipfs --json conclusion --jq '.conclusion')
-              echo "IPFS CI workflow completed with status: $CONCLUSION"
+              CONCLUSION=$(gh run view $run_id --repo $repo --json conclusion --jq '.conclusion')
+              echo "$name CI workflow completed with status: $CONCLUSION"
               if [[ "$CONCLUSION" != "success" ]]; then
-                echo "::error::IPFS CI workflow failed!"
+                echo "::error::$name CI workflow failed!"
+                return 1
+              fi
+              return 0
+            else
+              echo "$name CI workflow is still running..."
+              return 2
+            fi
+          }
+          
+          # Poll until all workflows complete
+          echo "Waiting for all component workflows to complete..."
+          IOS_DONE=false
+          ANDROID_DONE=false
+          IPFS_DONE=false
+          
+          while true; do
+            # Check all workflows that haven't completed yet
+            
+            if [[ "$IOS_DONE" != "true" ]]; then
+              check_workflow_status "journalbrand/journaltrove-ios" $IOS_RUN_ID "iOS"
+              RESULT=$?
+              if [[ $RESULT -eq 0 ]]; then
+                IOS_DONE=true
+              elif [[ $RESULT -eq 1 ]]; then
+                echo "iOS workflow failed, aborting orchestration"
                 exit 1
               fi
+            fi
+            
+            if [[ "$ANDROID_DONE" != "true" ]]; then
+              check_workflow_status "journalbrand/journaltrove-android" $ANDROID_RUN_ID "Android"
+              RESULT=$?
+              if [[ $RESULT -eq 0 ]]; then
+                ANDROID_DONE=true
+              elif [[ $RESULT -eq 1 ]]; then
+                echo "Android workflow failed, aborting orchestration"
+                exit 1
+              fi
+            fi
+            
+            if [[ "$IPFS_DONE" != "true" ]]; then
+              check_workflow_status "journalbrand/journaltrove-ipfs" $IPFS_RUN_ID "IPFS"
+              RESULT=$?
+              if [[ $RESULT -eq 0 ]]; then
+                IPFS_DONE=true
+              elif [[ $RESULT -eq 1 ]]; then
+                echo "IPFS workflow failed, aborting orchestration"
+                exit 1
+              fi
+            fi
+            
+            # If all workflows are done, break the loop
+            if [[ "$IOS_DONE" == "true" && "$ANDROID_DONE" == "true" && "$IPFS_DONE" == "true" ]]; then
+              echo "✅ All component workflows completed successfully!"
               break
             fi
-            echo "IPFS CI workflow is still running..."
+            
+            # Wait before checking again
+            echo "At least one workflow is still running, checking again in 30 seconds..."
             sleep 30
           done
 
