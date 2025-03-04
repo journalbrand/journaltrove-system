@@ -11,7 +11,11 @@
       "components": [
         "System.iOS",
         "System.Android",
-        "System.IPFS"
+        "System.IPFS",
+        "System.Crypto",
+        "System.Linux",
+        "System.macOS",
+        "System.Windows"
       ]
     },
     {
@@ -36,52 +40,32 @@
       "parent": "System"
     },
     {
-      "id": "System.1",
-      "type": "Requirement",
-      "name": "Local journaltrove Storage",
-      "description": "The system shall allow users to create, read, update, and delete journaltrove items on their local device",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System"
+      "id": "System.Crypto",
+      "type": "Component",
+      "name": "journaltrove-crypto Library",
+      "description": "Cross-platform Go-based cryptographic engine for encryption, signing, DID creation, and IPFS interactions",
+      "parent": "System"
     },
     {
-      "id": "System.1.1",
-      "type": "Requirement",
-      "name": "journaltrove CRUD Operations",
-      "description": "The system shall provide CRUD (Create, Read, Update, Delete) operations for journaltrove items",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System",
-      "parent": "System.1"
+      "id": "System.Linux",
+      "type": "Component",
+      "name": "Cloud Robot",
+      "description": "Linux-based cloud robot for automated journal interaction",
+      "parent": "System"
     },
     {
-      "id": "System.1.1.iOS.1",
-      "type": "Requirement",
-      "name": "iOS journaltrove CRUD",
-      "description": "The iOS client shall provide a user interface for creating, reading, updating, and deleting journaltrove items",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.1.1"
+      "id": "System.macOS",
+      "type": "Component",
+      "name": "macOS Kubo Node",
+      "description": "macOS-based IPFS node for pinning and serving journal content",
+      "parent": "System"
     },
     {
-      "id": "System.1.1.Android.1",
-      "type": "Requirement",
-      "name": "Android journaltrove CRUD",
-      "description": "The Android client shall provide a user interface for creating, reading, updating, and deleting journaltrove items",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.1.1"
-    },
-    {
-      "id": "System.2",
-      "type": "Requirement",
-      "name": "Data Synchronization",
-      "description": "The system shall securely synchronize journaltrove data across devices",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System"
+      "id": "System.Windows",
+      "type": "Component",
+      "name": "Windows Kubo Node",
+      "description": "Windows-based IPFS node for pinning and serving journal content",
+      "parent": "System"
     },
     {
       "id": "System.2.1",
@@ -92,36 +76,6 @@
       "priority": "High",
       "component": "System",
       "parent": "System.2"
-    },
-    {
-      "id": "System.2.1.iOS.1",
-      "type": "Requirement",
-      "name": "iOS IPFS Integration",
-      "description": "The iOS client shall integrate with IPFS nodes to backup and restore journaltrove data",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.2.1"
-    },
-    {
-      "id": "System.2.1.Android.1",
-      "type": "Requirement",
-      "name": "Android IPFS Integration",
-      "description": "The Android client shall integrate with IPFS nodes to backup and restore journaltrove data",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.2.1"
-    },
-    {
-      "id": "System.2.1.IPFS.1",
-      "type": "Requirement",
-      "name": "IPFS Node Data Storage",
-      "description": "The IPFS node shall store and pin journaltrove data with appropriate content identifiers (CIDs)",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.IPFS",
-      "parent": "System.2.1"
     },
     {
       "id": "System.3",
@@ -143,14 +97,229 @@
       "parent": "System.3"
     },
     {
-      "id": "System.3.2",
+      "id": "System.4",
       "type": "Requirement",
-      "name": "Secure Identity Transfer",
-      "description": "The system shall provide a secure mechanism to transfer identity information between devices using ephemeral keys",
+      "name": "Journal Messaging",
+      "description": "The system shall provide cryptographic messaging in a single shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.4.1",
+      "type": "Requirement",
+      "name": "Message Posting",
+      "description": "Each participant shall be able to post encrypted messages to the shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.4"
+    },
+    {
+      "id": "System.4.1.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Message Posting",
+      "description": "The iOS client shall provide functionality to post encrypted messages to the shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "System.4.1"
+    },
+    {
+      "id": "System.4.1.Android.1",
+      "type": "Requirement",
+      "name": "Android Message Posting",
+      "description": "The Android client shall provide functionality to post encrypted messages to the shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "System.4.1"
+    },
+    {
+      "id": "System.4.1.Linux.1",
+      "type": "Requirement",
+      "name": "Cloud Robot Message Posting",
+      "description": "The Cloud Robot shall automatically post encrypted messages to the shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Linux",
+      "parent": "System.4.1"
+    },
+    {
+      "id": "System.4.1.Crypto.1",
+      "type": "Requirement",
+      "name": "Crypto Message Encryption",
+      "description": "The journaltrove-crypto library shall provide functions to encrypt and sign messages",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Crypto",
+      "parent": "System.4.1"
+    },
+    {
+      "id": "System.4.2",
+      "type": "Requirement",
+      "name": "Message Retrieval",
+      "description": "Each participant shall be able to retrieve and decrypt messages posted by others",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.4"
+    },
+    {
+      "id": "System.4.2.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Message Retrieval",
+      "description": "The iOS client shall provide functionality to retrieve and decrypt messages from the shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "System.4.2"
+    },
+    {
+      "id": "System.4.2.Android.1",
+      "type": "Requirement",
+      "name": "Android Message Retrieval",
+      "description": "The Android client shall provide functionality to retrieve and decrypt messages from the shared journal",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "System.4.2"
+    },
+    {
+      "id": "System.4.2.Linux.1",
+      "type": "Requirement",
+      "name": "Cloud Robot Message Retrieval",
+      "description": "The Cloud Robot shall automatically retrieve and decrypt messages from the shared journal",
+      "status": "Draft",
+      "priority": "High", 
+      "component": "System.Linux",
+      "parent": "System.4.2"
+    },
+    {
+      "id": "System.4.2.Crypto.1",
+      "type": "Requirement",
+      "name": "Crypto Message Decryption",
+      "description": "The journaltrove-crypto library shall provide functions to decrypt and verify signed messages",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Crypto",
+      "parent": "System.4.2"
+    },
+    {
+      "id": "System.5",
+      "type": "Requirement",
+      "name": "Roster Management",
+      "description": "The system shall maintain a minimal roster document listing participant public keys",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.5.1",
+      "type": "Requirement",
+      "name": "Ephemeral Key Wrapping",
+      "description": "The system shall use the roster to wrap ephemeral session keys for each participant",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.5"
+    },
+    {
+      "id": "System.5.1.Crypto.1",
+      "type": "Requirement",
+      "name": "Crypto Key Wrapping",
+      "description": "The journaltrove-crypto library shall provide functions to wrap and unwrap ephemeral session keys",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Crypto",
+      "parent": "System.5.1"
+    },
+    {
+      "id": "System.6",
+      "type": "Requirement",
+      "name": "Cross-Platform Compatibility",
+      "description": "The system shall operate consistently across iOS, Android, macOS, Windows, and Linux platforms",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.6.1",
+      "type": "Requirement",
+      "name": "Cryptographic Consistency",
+      "description": "Cryptographic operations shall produce consistent results across all supported platforms",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System",
+      "parent": "System.6"
+    },
+    {
+      "id": "System.7",
+      "type": "Requirement",
+      "name": "Hardware Security",
+      "description": "The system shall utilize hardware-based key storage where available",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
+    },
+    {
+      "id": "System.7.1.iOS.1",
+      "type": "Requirement",
+      "name": "iOS Secure Enclave",
+      "description": "The iOS client shall store cryptographic keys in the Secure Enclave when available",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.iOS",
+      "parent": "System.7"
+    },
+    {
+      "id": "System.7.1.Android.1",
+      "type": "Requirement",
+      "name": "Android StrongBox",
+      "description": "The Android client shall store cryptographic keys in the StrongBox when available",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Android",
+      "parent": "System.7"
+    },
+    {
+      "id": "System.7.1.Linux.1",
+      "type": "Requirement",
+      "name": "Linux TPM/TEE",
+      "description": "The Cloud Robot shall store cryptographic keys in TPM or TEE when available",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System.Linux",
+      "parent": "System.7"
+    },
+    {
+      "id": "System.8",
+      "type": "Requirement",
+      "name": "Performance Efficiency",
+      "description": "The system shall meet performance criteria for encryption, decryption, and IPFS operations",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System"
+    },
+    {
+      "id": "System.8.1",
+      "type": "Requirement",
+      "name": "Encryption Performance",
+      "description": "Encryption and decryption operations shall complete in under 500ms for short strings",
       "status": "Draft",
       "priority": "Medium",
       "component": "System",
-      "parent": "System.3"
+      "parent": "System.8"
+    },
+    {
+      "id": "System.8.2",
+      "type": "Requirement",
+      "name": "IPFS Operation Performance",
+      "description": "IPFS fetch and pin operations shall typically complete in under 2 seconds",
+      "status": "Draft",
+      "priority": "Medium",
+      "component": "System",
+      "parent": "System.8"
     }
   ]
 } 
