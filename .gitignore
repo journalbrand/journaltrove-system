@@ -69,12 +69,18 @@ Thumbs.db
 dashboard.log
 .dashboard_refresh.pid
 dashboard.pid
+
+# Generated JSON-LD files
 compliance/dashboard/compliance_matrix.jsonld
-
-# Test Results
-compliance/results/**/test-results.jsonld
+compliance/results/**/*.jsonld
+compliance/reports/**/*.jsonld
 **/test-results.jsonld
+compliance_matrix.jsonld
 
-# Temporary files
+# Temporary directories and files
 temp/
+tmp/
+cloud_artifacts/
+components/
+validation_logs.txt
 .dashboard_refresh.pid
