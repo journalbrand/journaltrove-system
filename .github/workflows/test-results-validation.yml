@@ -233,7 +233,7 @@ jobs:
       - name: 🔍 Validate Requirement ID References
         run: |
           # Make validation script executable
-          chmod +x scripts/validate-requirement-ids.js
+          chmod +x scripts/validate-requirements.js
           
           # If we have the compliance matrix, copy it to the results directory for validation
           if [ -f "compliance/reports/compliance_matrix.jsonld" ]; then
@@ -259,9 +259,9 @@ jobs:
           # Run validation on test results using all requirements files
           echo "Validating requirement ID references in test results..."
           echo "Using requirements files: $SYSTEM_REQ $COMPONENT_REQS"
-          node scripts/validate-requirement-ids.js "$SYSTEM_REQ $COMPONENT_REQS" compliance/results
+          node scripts/validate-requirements.js --test-results compliance/results $SYSTEM_REQ $COMPONENT_REQS
           
-          # Check the exit code of the validate-requirement-ids.js script
+          # Check the exit code of the validate-requirements.js script
           VALIDATION_EXIT_CODE=$?
           if [ $VALIDATION_EXIT_CODE -eq 0 ]; then
             echo "✅ All requirement references are valid"

@@ -51,18 +51,22 @@ Done!
 
 Validates JSON-LD files against the defined schemas.
 
-### 🔍 `validate-requirement-ids.js`
+### 🔍 `validate-requirements.js`
 
-Validates requirement IDs and their hierarchical relationships.
+Unified validation script for requirements, test mappings, and test results. This script supports two modes:
+1. Early validation - Validates requirements structure and test mappings before tests run
+2. Test results validation - Validates test results against requirements after tests run
 
-### 🔍 `validate-requirements-early.js`
-
-Performs early validation of requirements and test mappings before the CI/CD pipeline runs component workflows.
-
-#### Usage
+#### Usage (Early Validation Mode)
 
 ```bash
-node validate-requirements-early.js <system-reqs-file> [component-reqs-files...] [test-mapping-files...]
+node validate-requirements.js --early <system-reqs-file> <component1-reqs-file> [component2-reqs-file...] [--test-mappings <test-mapping-files>]
+```
+
+#### Usage (Test Results Validation Mode)
+
+```bash
+node validate-requirements.js --test-results <test-results-dir> <system-reqs-file> <component1-reqs-file> [component2-reqs-file...]
 ```
 
 #### Features
@@ -71,18 +75,28 @@ node validate-requirements-early.js <system-reqs-file> [component-reqs-files...]
 - Validates that test cases only reference existing requirements
 - Checks requirement ID formatting and consistency across components
 - Ensures component-specific requirements use the correct component identifier
+- Validates test results against actual requirements
+- Supports component-centered architecture where requirements are maintained in individual repositories
 
-#### Example Usage
+#### Example Usage (Early Validation)
 
 ```bash
-node validate-requirements-early.js \
+node validate-requirements.js --early \
   requirements/requirements.jsonld \
   components/ios/requirements/requirements.jsonld \
   components/android/requirements/requirements.jsonld \
   components/ipfs/requirements/requirements.jsonld \
-  tmp/test-mappings/ios/test-mappings.jsonld \
-  tmp/test-mappings/android/test-mappings.jsonld \
-  tmp/test-mappings/ipfs/test-mappings.jsonld
+  --test-mappings "tmp/test-mappings/**/test-mappings.jsonld"
+```
+
+#### Example Usage (Test Results Validation)
+
+```bash
+node validate-requirements.js --test-results compliance/results \
+  requirements/requirements.jsonld \
+  components/ios/requirements/requirements.jsonld \
+  components/android/requirements/requirements.jsonld \
+  components/ipfs/requirements/requirements.jsonld
 ```
 
 ### 📥 `fetch-test-mappings.sh`
@@ -98,6 +112,22 @@ Fetches test mapping files from all component repositories for early validation.
 #### Features
 
 - Downloads test mapping files from iOS, Android, and IPFS repositories
+- Organizes them in a standard directory structure for validation
+- Authenticates with GitHub API to access repositories
+
+### 📥 `fetch-component-requirements.sh`
+
+Fetches requirements files from all component repositories.
+
+#### Usage
+
+```bash
+./fetch-component-requirements.sh
+```
+
+#### Features
+
+- Downloads requirements files from iOS, Android, and IPFS repositories
 - Organizes them in a standard directory structure for validation
 - Authenticates with GitHub API to access repositories
 

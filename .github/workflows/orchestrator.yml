@@ -26,7 +26,7 @@ jobs:
       - name: 📦 Install dependencies
         run: |
           npm init -y
-          npm install ajv ajv-formats
+          npm install ajv ajv-formats glob
           sudo apt-get update && sudo apt-get install -y jq
       
       - name: 🔧 Setup GitHub CLI
@@ -83,21 +83,19 @@ jobs:
           echo "Validating IPFS requirements..."
           jq empty components/ipfs/requirements/requirements.jsonld
       
-      - name: 🧪 Validate Requirements Hierarchy
+      - name: 🧪 Validate Requirements and Test Mappings
         run: |
           # Make validation script executable
-          chmod +x scripts/validate-requirements-early.js
+          chmod +x scripts/validate-requirements.js
           
-          # Run validation on all requirements files
+          # Run validation in early mode
           echo "Validating requirements hierarchy and test mappings..."
-          node scripts/validate-requirements-early.js \
+          node scripts/validate-requirements.js --early \
             requirements/requirements.jsonld \
             components/ios/requirements/requirements.jsonld \
             components/android/requirements/requirements.jsonld \
             components/ipfs/requirements/requirements.jsonld \
-            tmp/test-mappings/ios/test-mappings.jsonld \
-            tmp/test-mappings/android/test-mappings.jsonld \
-            tmp/test-mappings/ipfs/test-mappings.jsonld
+            --test-mappings "tmp/test-mappings/**/test-mappings.jsonld"
 
   trigger-component-workflows:
     name: 🔄 Trigger Component Workflows
