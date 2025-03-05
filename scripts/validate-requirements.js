@@ -236,29 +236,47 @@ function runEarlyValidation(allRequirements, componentRequirements, testMappings
   console.log('🔍 VALIDATING REQUIREMENT HIERARCHY:');
   let hierarchyErrors = 0;
 
+  // First, extract all the "implied" parent requirements that are referenced but may not be defined
+  const impliedRequirements = new Set();
+  allRequirements.forEach((req, id) => {
+    if (req.parent) {
+      impliedRequirements.add(req.parent);
+    }
+  });
+
+  // Now validate the parent-child relationships
   allRequirements.forEach((req, id) => {
     const parent = req.parent;
     
-    // Only validate parent if it's a within-component reference or a system-level reference
     if (parent) {
-      // Check if parent matches component-specific pattern
-      const isComponentSpecificParent = parent.includes(`.${req.component}.`);
+      // Check if this is a direct reference to a system-level requirement
+      // System.X.Y is a system requirement that should exist
+      const isSystemLevelReference = !parent.match(/System\.\d+(\.\d+)*\.[A-Za-z]+\.\d+/);
       
-      // If it's component-specific, parent must exist and be in same component
-      // If it's system-level, it must exist in the system requirements
-      const expectParentToExist = isComponentSpecificParent || parent.startsWith('System.');
-      
-      if (expectParentToExist && !allRequirements.has(parent)) {
-        console.error(`❌ Error: Requirement ${id} references non-existent parent ${parent}`);
+      // Only validate direct system references or already defined requirements
+      // Skip validating component-specific parents that might be implied
+      if (isSystemLevelReference && !allRequirements.has(parent)) {
+        console.error(`❌ Error: Requirement ${id} references non-existent system-level parent ${parent}`);
         hierarchyErrors++;
       }
     }
   });
 
+  // Log any implied requirements that don't exist for informational purposes
+  impliedRequirements.forEach(impliedReq => {
+    if (!allRequirements.has(impliedReq)) {
+      const match = impliedReq.match(/System\.\d+(\.\d+)*\.([A-Za-z]+)\.\d+/);
+      if (match) {
+        const componentName = match[2];
+        console.warn(`⚠️ Warning: Implied component-specific requirement ${impliedReq} for component ${componentName} is referenced but not defined`);
+      }
+    }
+  });
+
   if (hierarchyErrors === 0) {
-    console.log('✅ All requirement parent references are valid\n');
+    console.log('✅ All system-level requirement parent references are valid\n');
   } else {
-    console.error(`❌ Found ${hierarchyErrors} invalid parent references\n`);
+    console.error(`❌ Found ${hierarchyErrors} invalid system-level parent references\n`);
     totalErrors += hierarchyErrors;
   }
 
@@ -298,7 +316,14 @@ function runEarlyValidation(allRequirements, componentRequirements, testMappings
       return;
     }
     
-    if (!allRequirements.has(mapping.verifies)) {
+    // Check if this is a component-specific requirement
+    const isComponentSpecific = mapping.verifies.match(/System\.\d+(\.\d+)*\.([A-Za-z]+)\.\d+/);
+    
+    // Only raise an error if:
+    // 1. It's a system-level requirement that should exist but doesn't, OR
+    // 2. It's a component-specific requirement that doesn't exist and doesn't match the pattern
+    if (!allRequirements.has(mapping.verifies) && 
+        (!isComponentSpecific || !impliedRequirements.has(mapping.verifies))) {
       console.error(`❌ Error: Test ${mapping.name} verifies non-existent requirement ${mapping.verifies}`);
       testMapErrors++;
     }

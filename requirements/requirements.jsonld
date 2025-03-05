@@ -55,6 +55,26 @@
       "parent": "System.1"
     },
     {
+      "id": "System.1.1.iOS.1",
+      "type": "Requirement",
+      "name": "iOS journaltrove CRUD Operations",
+      "description": "The iOS client shall implement CRUD operations for journaltrove items",
+      "status": "Draft",
+      "priority": "High",
+      "component": "iOS",
+      "parent": "System.1.1"
+    },
+    {
+      "id": "System.1.1.Android.1",
+      "type": "Requirement",
+      "name": "Android journaltrove CRUD Operations",
+      "description": "The Android client shall implement CRUD operations for journaltrove items",
+      "status": "Draft",
+      "priority": "High",
+      "component": "Android",
+      "parent": "System.1.1"
+    },
+    {
       "id": "System.2",
       "type": "Requirement",
       "name": "Data Synchronization",
@@ -72,6 +92,36 @@
       "priority": "High",
       "component": "System",
       "parent": "System.2"
+    },
+    {
+      "id": "System.2.1.iOS.1",
+      "type": "Requirement",
+      "name": "iOS IPFS Integration",
+      "description": "The iOS client shall integrate with IPFS for data synchronization",
+      "status": "Draft",
+      "priority": "High",
+      "component": "iOS",
+      "parent": "System.2.1"
+    },
+    {
+      "id": "System.2.1.Android.1",
+      "type": "Requirement",
+      "name": "Android IPFS Integration",
+      "description": "The Android client shall integrate with IPFS for data synchronization",
+      "status": "Draft",
+      "priority": "High",
+      "component": "Android",
+      "parent": "System.2.1"
+    },
+    {
+      "id": "System.2.1.IPFS.1",
+      "type": "Requirement",
+      "name": "IPFS Node Data Management",
+      "description": "The IPFS node shall provide data storage and retrieval capabilities",
+      "status": "Draft",
+      "priority": "High",
+      "component": "IPFS",
+      "parent": "System.2.1"
     },
     {
       "id": "System.3",
