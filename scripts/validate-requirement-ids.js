@@ -3,55 +3,90 @@
 /**
  * Validate Requirement IDs in Test Results
  * This script validates that requirement IDs referenced in test results
- * match the format of the actual requirement IDs in the requirements file.
+ * match the format of the actual requirement IDs in the requirements files.
+ * It now supports multiple requirements files.
  */
 
 const fs = require('fs');
 const path = require('path');
+const glob = require('glob');
 
 // Check arguments
 if (process.argv.length < 4) {
-  console.error('Usage: node validate-requirement-ids.js <requirements-file> <test-results-directory>');
+  console.error('Usage: node validate-requirement-ids.js <requirements-files> <test-results-directory>');
+  console.error('  <requirements-files> can be a space-separated list of files or a glob pattern');
   process.exit(1);
 }
 
-const requirementsFilePath = process.argv[2];
+const requirementsFilePattern = process.argv[2];
 const testResultsDir = process.argv[3];
 
-// Validate file existence
-if (!fs.existsSync(requirementsFilePath)) {
-  console.error(`Error: Requirements file not found: ${requirementsFilePath}`);
+// Get all requirements files
+let requirementsFiles = [];
+if (requirementsFilePattern.includes('*')) {
+  // It's a glob pattern
+  try {
+    requirementsFiles = glob.sync(requirementsFilePattern);
+  } catch (error) {
+    console.error(`Error finding requirements files: ${error.message}`);
+    process.exit(1);
+  }
+} else {
+  // It's a space-separated list
+  requirementsFiles = requirementsFilePattern.split(' ').filter(Boolean);
+}
+
+if (requirementsFiles.length === 0) {
+  console.error(`Error: No requirements files found matching: ${requirementsFilePattern}`);
   process.exit(1);
 }
 
+console.log(`Found ${requirementsFiles.length} requirements files to process`);
+
+// Validate test results directory
 if (!fs.existsSync(testResultsDir)) {
   console.error(`Error: Test results directory not found: ${testResultsDir}`);
   process.exit(1);
 }
 
-// Load requirements
-let requirements;
-try {
-  const requirementsContent = fs.readFileSync(requirementsFilePath, 'utf8');
-  requirements = JSON.parse(requirementsContent);
-} catch (error) {
-  console.error(`Error parsing requirements file: ${error.message}`);
-  process.exit(1);
-}
-
-// Extract valid requirement IDs
+// Extract valid requirement IDs from all requirements files
 const validRequirementIds = new Set();
-if (requirements['@graph'] && Array.isArray(requirements['@graph'])) {
-  requirements['@graph'].forEach(item => {
-    if (item['@type'] === 'Requirement' || item.type === 'Requirement') {
-      if (item.id || item['@id']) {
-        validRequirementIds.add(item.id || item['@id']);
-      }
+const reqSourceMap = new Map(); // Track source of each requirement
+
+for (const requirementsFilePath of requirementsFiles) {
+  if (!fs.existsSync(requirementsFilePath)) {
+    console.error(`Warning: Requirements file not found: ${requirementsFilePath}`);
+    continue;
+  }
+
+  // Load requirements
+  try {
+    const requirementsContent = fs.readFileSync(requirementsFilePath, 'utf8');
+    const requirements = JSON.parse(requirementsContent);
+    
+    // Get source name from file path for logging
+    const sourceName = path.basename(path.dirname(path.dirname(requirementsFilePath)));
+    
+    // Extract valid requirement IDs
+    if (requirements['@graph'] && Array.isArray(requirements['@graph'])) {
+      requirements['@graph'].forEach(item => {
+        if (item['@type'] === 'Requirement' || item.type === 'Requirement') {
+          if (item.id || item['@id']) {
+            const reqId = item.id || item['@id'];
+            validRequirementIds.add(reqId);
+            reqSourceMap.set(reqId, sourceName);
+          }
+        }
+      });
     }
-  });
+    
+    console.log(`Processed ${path.basename(requirementsFilePath)} from ${sourceName}: Found ${validRequirementIds.size} valid requirement IDs`);
+  } catch (error) {
+    console.error(`Error parsing requirements file ${requirementsFilePath}: ${error.message}`);
+  }
 }
 
-console.log(`Found ${validRequirementIds.size} valid requirement IDs in requirements file`);
+console.log(`Total: Found ${validRequirementIds.size} valid requirement IDs across all requirements files`);
 
 // Process test result files
 const testFiles = findTestResultFiles(testResultsDir);
@@ -93,6 +128,7 @@ testFiles.forEach(testFile => {
         console.error(`Error: Test case references '${reqId}' which doesn't exist in requirements`);
         errors++;
       } else {
+        console.log(`✅ Valid reference: ${reqId} (from ${reqSourceMap.get(reqId) || 'unknown'})`);
         correct++;
       }
     });

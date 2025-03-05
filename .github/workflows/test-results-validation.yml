@@ -55,7 +55,7 @@ jobs:
       - name: 📦 Install dependencies for JSON-LD validation
         run: |
           npm init -y
-          npm install ajv ajv-formats
+          npm install ajv ajv-formats glob
         
       - name: 📥 Download Compliance Matrix
         uses: dawidd6/action-download-artifact@v2
@@ -131,24 +131,86 @@ jobs:
             exit 1
           fi
           
+      - name: 📥 Fetch Component Requirements
+        id: fetch-component-reqs
+        run: |
+          # Install GitHub CLI for API access
+          if ! command -v gh &> /dev/null; then
+            echo "Installing GitHub CLI..."
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+            sudo apt-add-repository https://cli.github.com/packages
+            sudo apt update
+            sudo apt install gh
+          fi
+          
+          # Setup GitHub CLI authentication
+          echo "${{ secrets.CROSS_REPO_TOKEN }}" | gh auth login --with-token
+          
+          # Make fetch script executable
+          chmod +x scripts/fetch-component-requirements.sh
+          
+          # Run the fetch script
+          ./scripts/fetch-component-requirements.sh
+          
+          # Check if all component requirements were fetched successfully
+          if [ -f "components/ios/requirements/requirements.jsonld" ] && \
+             [ -f "components/android/requirements/requirements.jsonld" ] && \
+             [ -f "components/ipfs/requirements/requirements.jsonld" ]; then
+            echo "All component requirements fetched successfully"
+            echo "fetch_success=true" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to fetch all component requirements"
+            echo "fetch_success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
       - name: 🧪 Verify Requirement Coverage
         run: |
           if [ -f "compliance/reports/compliance_matrix.jsonld" ]; then
-            # Extract all requirement IDs from the system requirements
-            SYSTEM_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement") | .id' requirements/requirements.jsonld)
+            # Extract all requirement IDs from system requirements and component requirements
+            echo "Extracting all requirement IDs from system and component requirements..."
+            
+            # System requirements
+            SYSTEM_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id // .["@id"]' requirements/requirements.jsonld)
+            
+            # Component requirements (if available)
+            COMPONENT_REQS=""
+            if [ -f "components/ios/requirements/requirements.jsonld" ]; then
+              IOS_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id // .["@id"]' components/ios/requirements/requirements.jsonld)
+              COMPONENT_REQS="$COMPONENT_REQS"$'\n'"$IOS_REQS"
+            fi
+            
+            if [ -f "components/android/requirements/requirements.jsonld" ]; then
+              ANDROID_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id // .["@id"]' components/android/requirements/requirements.jsonld)
+              COMPONENT_REQS="$COMPONENT_REQS"$'\n'"$ANDROID_REQS"
+            fi
+            
+            if [ -f "components/ipfs/requirements/requirements.jsonld" ]; then
+              IPFS_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id // .["@id"]' components/ipfs/requirements/requirements.jsonld)
+              COMPONENT_REQS="$COMPONENT_REQS"$'\n'"$IPFS_REQS"
+            fi
+            
+            # Combine all requirements
+            ALL_REQS="$SYSTEM_REQS"$'\n'"$COMPONENT_REQS"
             
             # Extract all requirement IDs that have test cases in the compliance matrix
             TESTED_REQS=$(jq -r '.["@graph"][] | .testCases[]? | .verifies' compliance/reports/compliance_matrix.jsonld)
             
-            # Simple validation to ensure all system requirements have tests
-            for req in $SYSTEM_REQS; do
+            # Simple validation to ensure all requirements have tests
+            echo "Validating test coverage for all requirements..."
+            MISSING_COVERAGE=0
+            
+            echo "$ALL_REQS" | grep -v '^$' | sort | uniq | while read -r req; do
               if echo "$TESTED_REQS" | grep -q "$req"; then
                 echo "✅ Requirement $req has test coverage"
               else
                 echo "⚠️ Warning: Requirement $req has no test coverage"
+                MISSING_COVERAGE=$((MISSING_COVERAGE + 1))
                 # Not failing the build but warning about missing coverage
               fi
             done
+            
+            echo "Test coverage validation complete. $MISSING_COVERAGE requirements have no test coverage."
           else
             echo "Compliance matrix not found for coverage validation"
             exit 1
@@ -178,9 +240,26 @@ jobs:
             cp compliance/reports/compliance_matrix.jsonld compliance/results/
           fi
           
-          # Run validation on test results
+          # Prepare requirements file paths for validation
+          SYSTEM_REQ="requirements/requirements.jsonld"
+          COMPONENT_REQS=""
+          
+          if [ -f "components/ios/requirements/requirements.jsonld" ]; then
+            COMPONENT_REQS="$COMPONENT_REQS components/ios/requirements/requirements.jsonld"
+          fi
+          
+          if [ -f "components/android/requirements/requirements.jsonld" ]; then
+            COMPONENT_REQS="$COMPONENT_REQS components/android/requirements/requirements.jsonld"
+          fi
+          
+          if [ -f "components/ipfs/requirements/requirements.jsonld" ]; then
+            COMPONENT_REQS="$COMPONENT_REQS components/ipfs/requirements/requirements.jsonld"
+          fi
+          
+          # Run validation on test results using all requirements files
           echo "Validating requirement ID references in test results..."
-          node scripts/validate-requirement-ids.js requirements/requirements.jsonld compliance/results
+          echo "Using requirements files: $SYSTEM_REQ $COMPONENT_REQS"
+          node scripts/validate-requirement-ids.js "$SYSTEM_REQ $COMPONENT_REQS" compliance/results
           
           # Check the exit code of the validate-requirement-ids.js script
           VALIDATION_EXIT_CODE=$?
@@ -188,7 +267,7 @@ jobs:
             echo "✅ All requirement references are valid"
           else
             echo "❌ ERROR: Invalid requirement references detected!"
-            echo "Tests must reference valid requirements from the requirements.jsonld file."
+            echo "Tests must reference valid requirements from the requirements files."
             echo "This is a critical error - failing fast!"
             exit $VALIDATION_EXIT_CODE
           fi 

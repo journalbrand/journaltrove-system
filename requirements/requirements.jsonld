@@ -39,7 +39,7 @@
       "id": "System.1",
       "type": "Requirement",
       "name": "Local journaltrove Storage",
-      "description": "The system shall allow users to create, read, update, and delete journaltrove items on their local device",
+      "description": "The system shall allow users to create, read!, update, and delete journaltrove items on their local device",
       "status": "Draft",
       "priority": "High",
       "component": "System"
@@ -53,26 +53,6 @@
       "priority": "High",
       "component": "System",
       "parent": "System.1"
-    },
-    {
-      "id": "System.1.1.iOS.1",
-      "type": "Requirement",
-      "name": "iOS journaltrove CRUD",
-      "description": "The iOS client shall provide a user interface for creating, reading, updating, and deleting journaltrove items",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.1.1"
-    },
-    {
-      "id": "System.1.1.Android.1",
-      "type": "Requirement",
-      "name": "Android journaltrove CRUD",
-      "description": "The Android client shall provide a user interface for creating, reading, updating, and deleting journaltrove items",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.1.1"
     },
     {
       "id": "System.2",
@@ -92,36 +72,6 @@
       "priority": "High",
       "component": "System",
       "parent": "System.2"
-    },
-    {
-      "id": "System.2.1.iOS.1",
-      "type": "Requirement",
-      "name": "iOS IPFS Integration",
-      "description": "The iOS client shall integrate with IPFS nodes to backup and restore journaltrove data",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.iOS",
-      "parent": "System.2.1"
-    },
-    {
-      "id": "System.2.1.Android.1",
-      "type": "Requirement",
-      "name": "Android IPFS Integration",
-      "description": "The Android client shall integrate with IPFS nodes to backup and restore journaltrove data",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.Android",
-      "parent": "System.2.1"
-    },
-    {
-      "id": "System.2.1.IPFS.1",
-      "type": "Requirement",
-      "name": "IPFS Node Data Storage",
-      "description": "The IPFS node shall store and pin journaltrove data with appropriate content identifiers (CIDs)",
-      "status": "Draft",
-      "priority": "High",
-      "component": "System.IPFS",
-      "parent": "System.2.1"
     },
     {
       "id": "System.3",

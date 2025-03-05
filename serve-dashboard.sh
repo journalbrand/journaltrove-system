@@ -56,13 +56,13 @@ download_compliance_matrix() {
     log "🔄 Refreshing compliance matrix data..."
     
     # Create necessary directories
-    mkdir -p "compliance/dashboard" "compliance/reports" "compliance/results"
+    mkdir -p "$BASE_DIR/compliance/dashboard" "$BASE_DIR/compliance/reports" "$BASE_DIR/compliance/results"
     
     # Download test results from component workflows
     log "📥 Downloading test results from component workflows..."
     
     # Create directories for each component's test results
-    mkdir -p "compliance/results/ios" "compliance/results/android" "compliance/results/ipfs"
+    mkdir -p "$BASE_DIR/compliance/results/ios" "$BASE_DIR/compliance/results/android" "$BASE_DIR/compliance/results/ipfs"
     
     # Download iOS test results
     log "📱 iOS: Downloading test results from latest workflow run..."
@@ -70,17 +70,17 @@ download_compliance_matrix() {
     IOS_RUN_ID=$(gh run list --repo journalbrand/journaltrove-ios --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$IOS_RUN_ID" ]]; then
         log "📱 iOS: Downloading test results from run $IOS_RUN_ID..."
-        gh run download $IOS_RUN_ID --repo journalbrand/journaltrove-ios --name ios-test-results-jsonld --dir compliance/results/ios 2>/dev/null
+        gh run download $IOS_RUN_ID --repo journalbrand/journaltrove-ios --name ios-test-results-jsonld --dir "$BASE_DIR/compliance/results/ios" 2>/dev/null
         
         # Check if the file exists directly or in a subdirectory
-        if [[ -f "compliance/results/ios/test-results.jsonld" ]]; then
+        if [[ -f "$BASE_DIR/compliance/results/ios/test-results.jsonld" ]]; then
             log "✅ iOS test results downloaded."
-        elif [[ -d "compliance/results/ios" ]]; then
+        elif [[ -d "$BASE_DIR/compliance/results/ios" ]]; then
             # Look for the file in any subdirectory
-            FOUND_FILE=$(find "compliance/results/ios" -name "test-results.jsonld" -type f | head -n 1)
+            FOUND_FILE=$(find "$BASE_DIR/compliance/results/ios" -name "test-results.jsonld" -type f | head -n 1)
             if [[ -n "$FOUND_FILE" ]]; then
                 # Move the file to the expected location
-                cp "$FOUND_FILE" "compliance/results/ios/test-results.jsonld"
+                cp "$FOUND_FILE" "$BASE_DIR/compliance/results/ios/test-results.jsonld"
                 log "✅ iOS test results downloaded."
             else
                 log "⚠️ iOS test results not found in the downloaded artifact."
@@ -98,17 +98,17 @@ download_compliance_matrix() {
     ANDROID_RUN_ID=$(gh run list --repo journalbrand/journaltrove-android --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$ANDROID_RUN_ID" ]]; then
         log "🤖 Android: Downloading test results from run $ANDROID_RUN_ID..."
-        gh run download $ANDROID_RUN_ID --repo journalbrand/journaltrove-android --name android-test-results-jsonld --dir compliance/results/android 2>/dev/null
+        gh run download $ANDROID_RUN_ID --repo journalbrand/journaltrove-android --name android-test-results-jsonld --dir "$BASE_DIR/compliance/results/android" 2>/dev/null
         
         # Check if the file exists directly or in a subdirectory
-        if [[ -f "compliance/results/android/test-results.jsonld" ]]; then
+        if [[ -f "$BASE_DIR/compliance/results/android/test-results.jsonld" ]]; then
             log "✅ Android test results downloaded."
-        elif [[ -d "compliance/results/android" ]]; then
+        elif [[ -d "$BASE_DIR/compliance/results/android" ]]; then
             # Look for the file in any subdirectory
-            FOUND_FILE=$(find "compliance/results/android" -name "test-results.jsonld" -type f | head -n 1)
+            FOUND_FILE=$(find "$BASE_DIR/compliance/results/android" -name "test-results.jsonld" -type f | head -n 1)
             if [[ -n "$FOUND_FILE" ]]; then
                 # Move the file to the expected location
-                cp "$FOUND_FILE" "compliance/results/android/test-results.jsonld"
+                cp "$FOUND_FILE" "$BASE_DIR/compliance/results/android/test-results.jsonld"
                 log "✅ Android test results downloaded."
             else
                 log "⚠️ Android test results not found in the downloaded artifact."
@@ -126,17 +126,17 @@ download_compliance_matrix() {
     IPFS_RUN_ID=$(gh run list --repo journalbrand/journaltrove-ipfs --workflow ci.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$IPFS_RUN_ID" ]]; then
         log "📦 IPFS: Downloading test results from run $IPFS_RUN_ID..."
-        gh run download $IPFS_RUN_ID --repo journalbrand/journaltrove-ipfs --name ipfs-test-results-jsonld --dir compliance/results/ipfs 2>/dev/null
+        gh run download $IPFS_RUN_ID --repo journalbrand/journaltrove-ipfs --name ipfs-test-results-jsonld --dir "$BASE_DIR/compliance/results/ipfs" 2>/dev/null
         
         # Check if the file exists directly or in a subdirectory
-        if [[ -f "compliance/results/ipfs/test-results.jsonld" ]]; then
+        if [[ -f "$BASE_DIR/compliance/results/ipfs/test-results.jsonld" ]]; then
             log "✅ IPFS test results downloaded."
-        elif [[ -d "compliance/results/ipfs" ]]; then
+        elif [[ -d "$BASE_DIR/compliance/results/ipfs" ]]; then
             # Look for the file in any subdirectory
-            FOUND_FILE=$(find "compliance/results/ipfs" -name "test-results.jsonld" -type f | head -n 1)
+            FOUND_FILE=$(find "$BASE_DIR/compliance/results/ipfs" -name "test-results.jsonld" -type f | head -n 1)
             if [[ -n "$FOUND_FILE" ]]; then
                 # Move the file to the expected location
-                cp "$FOUND_FILE" "compliance/results/ipfs/test-results.jsonld"
+                cp "$FOUND_FILE" "$BASE_DIR/compliance/results/ipfs/test-results.jsonld"
                 log "✅ IPFS test results downloaded."
             else
                 log "⚠️ IPFS test results not found in the downloaded artifact."
@@ -151,10 +151,10 @@ download_compliance_matrix() {
     # Generate fresh compliance matrix from test results
     log "🔄 Generating fresh compliance matrix from test results..."
     # Check if at least one test result file exists
-    TEST_RESULTS_COUNT=$(find "compliance/results" -name "test-results.jsonld" -type f | wc -l)
+    TEST_RESULTS_COUNT=$(find "$BASE_DIR/compliance/results" -name "test-results.jsonld" -type f | wc -l)
     if [[ "$TEST_RESULTS_COUNT" -gt 0 ]]; then
         # Run the aggregation script
-        ./compliance/scripts/aggregate_jsonld_compliance.sh compliance/results compliance/dashboard >> "$LOGFILE" 2>&1
+        "$BASE_DIR/compliance/scripts/aggregate_jsonld_compliance.sh" "$BASE_DIR/compliance/results" "$BASE_DIR/compliance/dashboard" >> "$LOGFILE" 2>&1
         if [[ $? -eq 0 ]]; then
             log "✅ Fresh compliance matrix generated from test results."
             return 0
@@ -171,7 +171,7 @@ download_compliance_matrix() {
     RUN_ID=$(gh run list --workflow=compliance-matrix.yml --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
     if [[ -n "$RUN_ID" ]]; then
         log "📥 Downloading compliance matrix from run $RUN_ID..."
-        gh run download $RUN_ID --name compliance-matrix-jsonld --dir compliance/dashboard 2>/dev/null
+        gh run download $RUN_ID --name compliance-matrix-jsonld --dir "$BASE_DIR/compliance/dashboard" 2>/dev/null
         
         if [[ $? -eq 0 ]]; then
             log "✅ Downloaded compliance matrix successfully."
@@ -184,16 +184,16 @@ download_compliance_matrix() {
     fi
     
     # If downloaded matrix exists, copy to dashboard directory
-    if [[ -f "compliance/reports/compliance_matrix.jsonld" ]]; then
-        cp "compliance/reports/compliance_matrix.jsonld" "compliance/dashboard/compliance_matrix.jsonld"
+    if [[ -f "$BASE_DIR/compliance/reports/compliance_matrix.jsonld" ]]; then
+        cp "$BASE_DIR/compliance/reports/compliance_matrix.jsonld" "$BASE_DIR/compliance/dashboard/compliance_matrix.jsonld"
         log "✅ Using existing compliance matrix."
         return 0
     fi
     
     # If requirements.json exists, create a minimal dashboard
-    if [[ -f "requirements/requirements.jsonld" ]]; then
+    if [[ -f "$BASE_DIR/requirements/requirements.jsonld" ]]; then
         log "ℹ️ Creating minimal dashboard from requirements only."
-        cp "requirements/requirements.jsonld" "compliance/dashboard/requirements.jsonld"
+        cp "$BASE_DIR/requirements/requirements.jsonld" "$BASE_DIR/compliance/dashboard/requirements.jsonld"
         return 0
     fi
     
