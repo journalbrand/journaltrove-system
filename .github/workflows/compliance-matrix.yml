@@ -85,15 +85,50 @@ jobs:
         run: |
           echo "${{ secrets.CROSS_REPO_TOKEN }}" | gh auth login --with-token
         
-      - name: 📥 Fetch Component Requirements
+      - name: 📂 Create Components Directories
         run: |
-          chmod +x scripts/fetch-component-requirements.sh
-          ./scripts/fetch-component-requirements.sh
-        
-      - name: 📂 Create Compliance Directories
-        run: |
+          # Create component requirement directories with the same structure as results
+          mkdir -p components/ios
+          mkdir -p components/android
+          mkdir -p components/ipfs
           mkdir -p compliance/results
           mkdir -p compliance/reports
+      
+      - name: 📥 Download iOS Requirements
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          name: requirements-jsonld
+          path: components/ios
+          repo: journalbrand/journaltrove-ios
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: warn
+          
+      - name: 📥 Download Android Requirements
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          name: requirements-jsonld
+          path: components/android
+          repo: journalbrand/journaltrove-android
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: warn
+          
+      - name: 📥 Download IPFS Requirements
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ci.yml
+          workflow_conclusion: success
+          name: requirements-jsonld
+          path: components/ipfs
+          repo: journalbrand/journaltrove-ipfs
+          github_token: ${{ secrets.CROSS_REPO_TOKEN }}
+          check_artifacts: true
+          if_no_artifact_found: warn
         
       - name: 📥 Download iOS Test Results
         uses: dawidd6/action-download-artifact@v2

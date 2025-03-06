@@ -73,33 +73,44 @@ if [ -d "$COMPONENTS_DIR" ]; then
   echo "Directory exists. Listing contents:"
   ls -R "$COMPONENTS_DIR"
 
-  # Find all component requirement files dynamically
-  find "$COMPONENTS_DIR" -path "*/requirements/requirements.jsonld" | while read -r req_file; do
-    echo "Found requirements file: $req_file"
+  # Process each component directory
+  for component_dir in "$COMPONENTS_DIR"/*; do
+    if [ -d "$component_dir" ]; then
+      # Extract component name from directory name
+      component=$(basename "$component_dir")
+      echo "Processing requirements for component: $component"
+      
+      # Look for requirements.jsonld directly in the component directory
+      req_file="$component_dir/requirements.jsonld"
+      
+      if [ -f "$req_file" ]; then
+        echo "Found requirements file: $req_file"
+        
+        # Extract requirements for this component
+        if jq empty "$req_file"; then
+          jq -r --arg component "$component" '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | {
+            "@id": (.id // .["@id"]),
+            "@type": "Requirement",
+            "name": .name,
+            "description": .description,
+            "component": $component,
+            "status": .status,
+            "priority": .priority,
+            "parent": .parent
+          }' "$req_file" > "$TEMP_DIR/${component}_requirements.json"
 
-    # Extract component name from path
-    component=$(basename "$(dirname "$(dirname "$req_file")")")
-    echo "Processing requirements for component: $component"
-
-    # Extract requirements for this component - include ALL component requirements
-    if jq empty "$req_file"; then
-      jq -r --arg component "$component" '."@graph"[] | select(.type == "Requirement" or ."@type" == "Requirement") | {
-        "@id": (.id // ."@id"),
-        "@type": "Requirement",
-        "name": .name,
-        "description": .description,
-        "component": $component,
-        "status": .status,
-        "priority": .priority,
-        "parent": .parent
-      }' "$req_file" > "$TEMP_DIR/${component}_requirements.json"
-
-      # Add component requirements to the array
-      while read -r comp_req; do
-        ALL_REQUIREMENTS+=("$comp_req")
-      done < <(jq -c '.' "$TEMP_DIR/${component}_requirements.json")
-    else
-      echo "✗ Error: Invalid JSON-LD in $req_file"
+          # Add component requirements to the array
+          while read -r comp_req; do
+            ALL_REQUIREMENTS+=("$comp_req")
+          done < <(jq -c '.' "$TEMP_DIR/${component}_requirements.json")
+          
+          echo "✅ Successfully processed requirements for $component"
+        else
+          echo "✗ Error: Invalid JSON-LD in $req_file"
+        fi
+      else
+        echo "⚠️ Warning: No requirements.jsonld found for component: $component"
+      fi
     fi
   done
 else
