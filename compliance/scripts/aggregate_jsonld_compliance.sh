@@ -37,7 +37,69 @@ if [ ! -f "$SYSTEM_REQ" ]; then
   exit 1
 fi
 
-# Initialize the compliance matrix
+# Create temp directory for processing
+TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
+
+# Step 1: Extract all requirements from the system requirements file and component requirement files
+echo "Collecting all requirements from system and components..."
+
+# Extract system requirements
+jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | {
+  "@id": (.id // .["@id"]),
+  "@type": "Requirement",
+  "name": .name,
+  "description": .description,
+  "component": "System",
+  "status": .status,
+  "priority": .priority,
+  "parent": .parent
+}' "$SYSTEM_REQ" > "$TEMP_DIR/system_requirements.json"
+
+# Create an array to hold all requirements
+ALL_REQUIREMENTS=()
+
+# Add system requirements to the array
+while read -r req; do
+  ALL_REQUIREMENTS+=("$req")
+done < <(jq -c '.' "$TEMP_DIR/system_requirements.json")
+
+# Check for component requirements in the components directory
+COMPONENTS_DIR="$BASE_DIR/components"
+if [ -d "$COMPONENTS_DIR" ]; then
+  echo "Looking for component requirements in $COMPONENTS_DIR..."
+  # Find all component requirement files dynamically
+  find "$COMPONENTS_DIR" -path "*/requirements/requirements.jsonld" | while read -r req_file; do
+    # Extract component name from path
+    component=$(basename "$(dirname "$(dirname "$req_file")")")
+    echo "Processing requirements for component: $component"
+    
+    # Extract requirements for this component
+    jq -r --arg component "$component" '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | {
+      "@id": (.id // .["@id"]),
+      "@type": "Requirement",
+      "name": .name,
+      "description": .description,
+      "component": $component,
+      "status": .status,
+      "priority": .priority,
+      "parent": .parent
+    }' "$req_file" > "$TEMP_DIR/${component}_requirements.json"
+    
+    # Add component requirements to the array
+    while read -r comp_req; do
+      ALL_REQUIREMENTS+=("$comp_req")
+    done < <(jq -c '.' "$TEMP_DIR/${component}_requirements.json")
+  done
+fi
+
+# Count unique requirements
+echo "Found ${#ALL_REQUIREMENTS[@]} total requirements across all components"
+
+# Step 2: Initialize the compliance matrix with all requirements
+echo "Initializing compliance matrix with all requirements..."
+
+# Create initial structure
 cat > "$OUTPUT_FILE" << EOF
 {
   "@context": "../requirements/context/requirements-context.jsonld",
@@ -49,15 +111,23 @@ cat > "$OUTPUT_FILE" << EOF
       "description": "Generated compliance matrix aggregating test results from all components",
       "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
       "components": [],
+      "requirements": [],
       "testCases": []
     }
   ]
 }
 EOF
 
-echo "✓ Created initial compliance matrix structure"
+# Add all requirements to the compliance matrix
+for req in "${ALL_REQUIREMENTS[@]}"; do
+  jq --argjson req "$req" '.["@graph"][0].requirements += [$req]' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
+done
 
-# Process component test results
+echo "✓ Created initial compliance matrix with all requirements"
+
+# Step 3: Process component test results
+echo "Processing test results from each component..."
+
 # First, find all test result files
 find "$RESULTS_DIR" -name "*.jsonld" -type f | while read -r result_file; do
   echo "Processing $result_file..."
@@ -84,24 +154,48 @@ find "$RESULTS_DIR" -name "*.jsonld" -type f | while read -r result_file; do
     "name": .name, 
     "verifies": .verifies,
     "result": .result
-  }' "$result_file" > test_case.json
+  }' "$result_file" > "$TEMP_DIR/test_case.json"
   
   # Check if the test_case.json file is not empty
-  if [ -s test_case.json ]; then
-    cat test_case.json | jq -c '.' | while read -r test_case; do
+  if [ -s "$TEMP_DIR/test_case.json" ]; then
+    cat "$TEMP_DIR/test_case.json" | jq -c '.' | while read -r test_case; do
       # Add the test case to the compliance matrix
       jq --argjson test_case "$test_case" '.["@graph"][0].testCases += [$test_case]' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
     done
   fi
-  
-  rm -f test_case.json
 done
 
-# Generate statistics
+# Step 4: Calculate coverage and update requirement status
+echo "Calculating coverage and updating requirement status..."
+
+# Create a temp file with all test cases
+jq -r '.["@graph"][0].testCases[]' "$OUTPUT_FILE" > "$TEMP_DIR/all_test_cases.json"
+
+# Create a temporary file with all verified requirements
+jq -r '.["@graph"][0].testCases[].verifies' "$OUTPUT_FILE" | sort | uniq > "$TEMP_DIR/tested_requirements.txt"
+
+# Update the status of each requirement in the matrix
+jq -r --slurpfile tested_reqs <(jq -Rs 'split("\n") | map(select(length > 0))' "$TEMP_DIR/tested_requirements.txt") '
+  .["@graph"][0].requirements = .["@graph"][0].requirements | map(
+    if (.["@id"] | inside($tested_reqs[])) then 
+      . + {"tested": true} 
+    else 
+      . + {"tested": false} 
+    end
+  )
+' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
+
+# Step 5: Generate statistics
 echo "Generating statistics..."
 
 # Count total requirements
-TOTAL_REQS=$(jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | .id' "$BASE_DIR/requirements/requirements.jsonld" | wc -l | xargs)
+TOTAL_REQS=$(jq -r '.["@graph"][0].requirements | length' "$OUTPUT_FILE")
+
+# Count tested requirements
+TESTED_REQS=$(jq -r '.["@graph"][0].requirements[] | select(.tested == true) | .["@id"]' "$OUTPUT_FILE" | wc -l | xargs)
+
+# Count untested requirements
+UNTESTED_REQS=$(jq -r '.["@graph"][0].requirements[] | select(.tested == false) | .["@id"]' "$OUTPUT_FILE" | wc -l | xargs)
 
 # Count total tests
 TOTAL_TESTS=$(jq -r '.["@graph"][0].testCases | length' "$OUTPUT_FILE")
@@ -115,31 +209,42 @@ FAILED_TESTS=$(jq -r '.["@graph"][0].testCases[] | select(.result == "Fail" or .
 # Count components
 COMPONENTS_COUNT=$(jq -r '.["@graph"][0].components | length' "$OUTPUT_FILE")
 
+# Calculate coverage percentage
+COVERAGE_PCT=0
+if [ "$TOTAL_REQS" -gt 0 ]; then
+  COVERAGE_PCT=$(echo "scale=1; $TESTED_REQS * 100 / $TOTAL_REQS" | bc)
+fi
+
 # Add statistics to the compliance matrix
 jq --arg total_reqs "$TOTAL_REQS" \
+   --arg tested_reqs "$TESTED_REQS" \
+   --arg untested_reqs "$UNTESTED_REQS" \
+   --arg coverage_pct "$COVERAGE_PCT" \
    --arg total_tests "$TOTAL_TESTS" \
    --arg passed_tests "$PASSED_TESTS" \
    --arg failed_tests "$FAILED_TESTS" \
    --arg components_count "$COMPONENTS_COUNT" \
    '.["@graph"][0].statistics = {
       "totalRequirements": $total_reqs | tonumber,
+      "testedRequirements": $tested_reqs | tonumber,
+      "untestedRequirements": $untested_reqs | tonumber,
+      "coveragePercentage": $coverage_pct | tonumber,
       "totalTests": $total_tests | tonumber,
       "passingTests": $passed_tests | tonumber,
       "failingTests": $failed_tests | tonumber,
       "components": $components_count | tonumber
     }' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
 
-# Generate an HTML report
-echo "Generating HTML report..."
-
 # Copy the compliance matrix to the dashboard directory
-mkdir -p "../compliance/dashboard"
-cp "$OUTPUT_FILE" "../compliance/dashboard/compliance_matrix.jsonld"
+mkdir -p "$BASE_DIR/compliance/dashboard"
+cp "$OUTPUT_FILE" "$BASE_DIR/compliance/dashboard/compliance_matrix.jsonld"
 
 echo "Compliance matrix generated: $OUTPUT_FILE"
 echo "Dashboard updated with compliance matrix"
 echo "Statistics:"
 echo "- Total requirements: $TOTAL_REQS"
+echo "- Tested requirements: $TESTED_REQS ($COVERAGE_PCT%)"
+echo "- Untested requirements: $UNTESTED_REQS"
 echo "- Total tests: $TOTAL_TESTS"
 echo "- Passed tests: $PASSED_TESTS"
 echo "- Failed tests: $FAILED_TESTS"
