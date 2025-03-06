@@ -67,31 +67,43 @@ done < <(jq -c '.' "$TEMP_DIR/system_requirements.json")
 
 # Check for component requirements in the components directory
 COMPONENTS_DIR="$BASE_DIR/components"
+echo "Checking for component requirements in directory: $COMPONENTS_DIR"
+
 if [ -d "$COMPONENTS_DIR" ]; then
-  echo "Looking for component requirements in $COMPONENTS_DIR..."
+  echo "Directory exists. Listing contents:"
+  ls -R "$COMPONENTS_DIR"
+
   # Find all component requirement files dynamically
   find "$COMPONENTS_DIR" -path "*/requirements/requirements.jsonld" | while read -r req_file; do
+    echo "Found requirements file: $req_file"
+
     # Extract component name from path
     component=$(basename "$(dirname "$(dirname "$req_file")")")
     echo "Processing requirements for component: $component"
-    
+
     # Extract requirements for this component - include ALL component requirements
-    jq -r --arg component "$component" '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | {
-      "@id": (.id // .["@id"]),
-      "@type": "Requirement",
-      "name": .name,
-      "description": .description,
-      "component": $component,
-      "status": .status,
-      "priority": .priority,
-      "parent": .parent
-    }' "$req_file" > "$TEMP_DIR/${component}_requirements.json"
-    
-    # Add component requirements to the array
-    while read -r comp_req; do
-      ALL_REQUIREMENTS+=("$comp_req")
-    done < <(jq -c '.' "$TEMP_DIR/${component}_requirements.json")
+    if jq empty "$req_file"; then
+      jq -r --arg component "$component" '."@graph"[] | select(.type == "Requirement" or ."@type" == "Requirement") | {
+        "@id": (.id // ."@id"),
+        "@type": "Requirement",
+        "name": .name,
+        "description": .description,
+        "component": $component,
+        "status": .status,
+        "priority": .priority,
+        "parent": .parent
+      }' "$req_file" > "$TEMP_DIR/${component}_requirements.json"
+
+      # Add component requirements to the array
+      while read -r comp_req; do
+        ALL_REQUIREMENTS+=("$comp_req")
+      done < <(jq -c '.' "$TEMP_DIR/${component}_requirements.json")
+    else
+      echo "✗ Error: Invalid JSON-LD in $req_file"
+    fi
   done
+else
+  echo "✗ Error: Components directory does not exist: $COMPONENTS_DIR"
 fi
 
 # Count unique requirements
