@@ -44,8 +44,9 @@ trap 'rm -rf "$TEMP_DIR"' EXIT
 # Step 1: Extract all requirements from the system requirements file and component requirement files
 echo "Collecting all requirements from system and components..."
 
-# Extract system requirements
-jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | {
+# Extract system requirements - only include system-level requirements, not component-specific ones
+jq -r '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | 
+  select(.component == "System" or .component == null) | {
   "@id": (.id // .["@id"]),
   "@type": "Requirement",
   "name": .name,
@@ -74,7 +75,7 @@ if [ -d "$COMPONENTS_DIR" ]; then
     component=$(basename "$(dirname "$(dirname "$req_file")")")
     echo "Processing requirements for component: $component"
     
-    # Extract requirements for this component
+    # Extract requirements for this component - include ALL component requirements
     jq -r --arg component "$component" '.["@graph"][] | select(.type == "Requirement" or .["@type"] == "Requirement") | {
       "@id": (.id // .["@id"]),
       "@type": "Requirement",
@@ -175,13 +176,14 @@ jq -r '.["@graph"][0].testCases[]' "$OUTPUT_FILE" > "$TEMP_DIR/all_test_cases.js
 jq -r '.["@graph"][0].testCases[].verifies' "$OUTPUT_FILE" | sort | uniq > "$TEMP_DIR/tested_requirements.txt"
 
 # Update the status of each requirement in the matrix
+# Using string comparison instead of inside() which was causing the jq error
 jq -r --slurpfile tested_reqs <(jq -Rs 'split("\n") | map(select(length > 0))' "$TEMP_DIR/tested_requirements.txt") '
   .["@graph"][0].requirements = .["@graph"][0].requirements | map(
-    if (.["@id"] | inside($tested_reqs[])) then 
-      . + {"tested": true} 
-    else 
-      . + {"tested": false} 
-    end
+    . + {
+      "tested": (reduce $tested_reqs[] as $req (false; 
+        if . then . else (.["@id"] == $req) end
+      ))
+    }
   )
 ' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
 
