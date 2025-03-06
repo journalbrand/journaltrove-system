@@ -192,9 +192,7 @@ jq -r '.["@graph"][0].testCases[].verifies' "$OUTPUT_FILE" | sort | uniq > "$TEM
 jq -r --slurpfile tested_reqs <(jq -Rs 'split("\n") | map(select(length > 0))' "$TEMP_DIR/tested_requirements.txt") '
   .["@graph"][0].requirements = .["@graph"][0].requirements | map(
     . + {
-      "tested": (reduce $tested_reqs[] as $req (false; 
-        if . then . else (.["@id"] == $req) end
-      ))
+      "tested": ($tested_reqs[0] | index(.["@id"]) != null)
     }
   )
 ' "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
