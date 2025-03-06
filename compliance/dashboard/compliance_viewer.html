@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>journaltrove Compliance Matrix Viewer</title>
+    <style>
+        :root {
+            --primary: #3f51b5;
+            --primary-light: #757de8;
+            --primary-dark: #002984;
+            --secondary: #ff9800;
+            --secondary-light: #ffc947;
+            --secondary-dark: #c66900;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --muted: #757575;
+            --border: #e0e0e0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            padding: 20px;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+        
+        h1 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin: 25px 0 15px 0;
+            font-size: 1.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+        
+        .stat-card .percentage {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary-dark);
+        }
+        
+        .coverage-bar {
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .coverage-bar .filled {
+            height: 100%;
+            background-color: var(--success);
+        }
+        
+        .requirements-container, .test-cases-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .requirement-row {
+            cursor: pointer;
+        }
+        
+        .child-requirement {
+            display: none;
+        }
+        
+        .expand-icon {
+            display: inline-block;
+            width: 16px;
+            text-align: center;
+            margin-right: 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: white;
+        }
+        
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .badge-info {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .badge-light {
+            background-color: #e0e0e0;
+            color: var(--dark);
+        }
+        
+        .indent {
+            padding-left: 20px;
+        }
+        
+        .priority-high {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .priority-medium {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .priority-low {
+            border-left: 4px solid var(--success);
+        }
+        
+        .test-row .result-pass {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .test-row .result-fail {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: var(--muted);
+        }
+        
+        .error {
+            padding: 20px;
+            background-color: #ffebee;
+            border-radius: 8px;
+            color: var(--danger);
+            margin-bottom: 20px;
+        }
+        
+        .timestamp {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-card {
+                min-width: 100%;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+            
+            .hide-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="dashboard-header">
+                <div>
+                    <h1>📊 journaltrove Compliance Matrix</h1>
+                    <div id="timestamp" class="timestamp">Loading data...</div>
+                </div>
+            </div>
+        </header>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="loading" class="loading">
+            Loading compliance data...
+        </div>
+        
+        <div id="dashboard-content" style="display: none;">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>REQUIREMENTS</h3>
+                    <div class="value" id="total-requirements">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>TEST COVERAGE</h3>
+                    <div class="value" id="tested-requirements">-</div>
+                    <div class="percentage" id="coverage-percentage">-%</div>
+                    <div class="coverage-bar">
+                        <div class="filled" id="coverage-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>TESTS</h3>
+                    <div class="value" id="total-tests">-</div>
+                    <div id="passing-tests" style="color: var(--success)">Passing: -</div>
+                    <div id="failing-tests" style="color: var(--danger)">Failing: -</div>
+                </div>
+                <div class="stat-card">
+                    <h3>COMPONENTS</h3>
+                    <div class="value" id="total-components">-</div>
+                    <div id="components-list" style="font-size: 0.9rem; color: var(--muted);"></div>
+                </div>
+            </div>
+            
+            <div class="requirements-container">
+                <h2>📋 Requirements</h2>
+                <table id="requirements-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Component</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Test Coverage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requirements-body">
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="test-cases-container">
+                <h2>🧪 Test Cases</h2>
+                <table id="tests-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Component</th>
+                            <th>Verifies Requirement</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tests-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Main function to load and process the compliance matrix data
+        async function loadComplianceMatrix() {
+            try {
+                const response = await fetch('compliance_matrix.jsonld');
+                if (!response.ok) {
+                    throw new Error(`Failed to load compliance matrix: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const matrix = data['@graph'].find(item => item['@type'] === 'ComplianceMatrix');
+                
+                if (!matrix) {
+                    throw new Error('Invalid compliance matrix format: ComplianceMatrix not found in JSON-LD');
+                }
+                
+                // Hide loading indicator and show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                
+                // Display timestamp
+                const timestamp = new Date(matrix.timestamp);
+                document.getElementById('timestamp').textContent = 
+                    `Last updated: ${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}`;
+                
+                // Display statistics
+                displayStatistics(matrix);
+                
+                // Process requirements hierarchy
+                const requirementsMap = processRequirements(matrix.requirements);
+                
+                // Display requirements table
+                displayRequirements(requirementsMap, matrix.testCases);
+                
+                // Display test cases table
+                displayTestCases(matrix.testCases, requirementsMap);
+                
+                // Add event listeners for expandable rows
+                setupExpandableRows();
+                
+            } catch (error) {
+                console.error('Error loading compliance matrix:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+        
+        // Display statistics from the matrix
+        function displayStatistics(matrix) {
+            const stats = matrix.statistics || {
+                totalRequirements: matrix.requirements.length,
+                testedRequirements: 0,
+                coveragePercentage: 0,
+                totalTests: matrix.testCases.length,
+                passingTests: 0,
+                failingTests: 0,
+                components: matrix.components.length
+            };
+            
+            document.getElementById('total-requirements').textContent = stats.totalRequirements;
+            document.getElementById('tested-requirements').textContent = 
+                `${stats.testedRequirements}/${stats.totalRequirements}`;
+            document.getElementById('coverage-percentage').textContent = 
+                `${stats.coveragePercentage || 0}%`;
+            document.getElementById('coverage-bar').style.width = 
+                `${stats.coveragePercentage || 0}%`;
+            document.getElementById('total-tests').textContent = stats.totalTests;
+            document.getElementById('passing-tests').textContent = 
+                `Passing: ${stats.passingTests || 0}`;
+            document.getElementById('failing-tests').textContent = 
+                `Failing: ${stats.failingTests || 0}`;
+            document.getElementById('total-components').textContent = stats.components;
+            
+            // Display component list
+            const componentsList = matrix.components.map(c => 
+                c.charAt(0).toUpperCase() + c.slice(1)
+            ).join(', ');
+            document.getElementById('components-list').textContent = componentsList;
+        }
+        
+        // Process requirements and build a hierarchy map
+        function processRequirements(requirements) {
+            const requirementsMap = new Map();
+            
+            // First pass: create map entries for all requirements
+            requirements.forEach(req => {
+                requirementsMap.set(req['@id'], {
+                    ...req,
+                    children: [],
+                    level: 0,
+                    testCases: []
+                });
+            });
+            
+            // Second pass: build parent-child relationships
+            requirements.forEach(req => {
+                if (req.parent && requirementsMap.has(req.parent)) {
+                    const parent = requirementsMap.get(req.parent);
+                    parent.children.push(req['@id']);
+                }
+            });
+            
+            // Third pass: calculate levels (depth in hierarchy)
+            function calculateLevels(reqId, level = 0) {
+                const req = requirementsMap.get(reqId);
+                req.level = level;
+                req.children.forEach(childId => {
+                    calculateLevels(childId, level + 1);
+                });
+            }
+            
+            // Find top-level requirements and calculate their levels
+            requirements
+                .filter(req => !req.parent || !requirementsMap.has(req.parent))
+                .forEach(req => calculateLevels(req['@id']));
+            
+            return requirementsMap;
+        }
+        
+        // Display requirements table
+        function displayRequirements(requirementsMap, testCases) {
+            const tableBody = document.getElementById('requirements-body');
+            tableBody.innerHTML = '';
+            
+            // Create a test coverage lookup map
+            const coverageMap = new Map();
+            testCases.forEach(test => {
+                if (test.verifies) {
+                    if (!coverageMap.has(test.verifies)) {
+                        coverageMap.set(test.verifies, []);
+                    }
+                    coverageMap.get(test.verifies).push(test);
+                }
+            });
+            
+            // Find top-level requirements
+            const topLevelReqs = Array.from(requirementsMap.values())
+                .filter(req => !req.parent || !requirementsMap.has(req.parent))
+                .sort((a, b) => a['@id'].localeCompare(b['@id']));
+            
+            // Recursively add requirements to the table
+            function addRequirementToTable(reqId, level = 0) {
+                const req = requirementsMap.get(reqId);
+                const indentation = level * 20;
+                const hasChildren = req.children.length > 0;
+                const hasCoverage = coverageMap.has(req['@id']);
+                const testCount = hasCoverage ? coverageMap.get(req['@id']).length : 0;
+                
+                const row = document.createElement('tr');
+                row.classList.add('requirement-row');
+                if (req.priority) {
+                    row.classList.add(`priority-${req.priority.toLowerCase()}`);
+                }
+                
+                if (hasChildren) {
+                    row.dataset.hasChildren = 'true';
+                    row.dataset.expanded = 'false';
+                    row.dataset.level = level;
+                    row.dataset.reqId = req['@id'];
+                }
+                
+                const expandIcon = hasChildren ? 
+                    `<span class="expand-icon">➕</span>` : 
+                    `<span class="expand-icon"></span>`;
+                
+                row.innerHTML = `
+                    <td style="padding-left: ${indentation + 15}px;">
+                        ${expandIcon}${req['@id']}
+                    </td>
+                    <td>${req.name}</td>
+                    <td>${req.component}</td>
+                    <td>
+                        <span class="badge badge-light">${req.status || 'Unknown'}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-${getPriorityClass(req.priority)}">${req.priority || 'Unknown'}</span>
+                    </td>
+                    <td>
+                        ${hasCoverage ? 
+                            `<span class="badge badge-success">${testCount} Tests</span>` : 
+                            `<span class="badge badge-warning">No Tests</span>`}
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+                // Add child requirements
+                if (hasChildren) {
+                    req.children.sort().forEach(childId => {
+                        addRequirementToTable(childId, level + 1);
+                    });
+                }
+            }
+            
+            // Add all top-level requirements
+            topLevelReqs.forEach(req => addRequirementToTable(req['@id']));
+        }
+        
+        // Display test cases table
+        function displayTestCases(testCases, requirementsMap) {
+            const tableBody = document.getElementById('tests-body');
+            tableBody.innerHTML = '';
+            
+            testCases.forEach(test => {
+                const row = document.createElement('tr');
+                row.classList.add('test-row');
+                
+                // Get requirement info
+                let reqName = '-';
+                if (test.verifies && requirementsMap.has(test.verifies)) {
+                    reqName = `${requirementsMap.get(test.verifies).name} (${test.verifies})`;
+                }
+                
+                const resultClass = test.result && test.result.toLowerCase().includes('pass') ? 
+                    'result-pass' : 'result-fail';
+                
+                row.innerHTML = `
+                    <td>${test.name}</td>
+                    <td>${test.component}</td>
+                    <td>${reqName}</td>
+                    <td class="${resultClass}">${test.result || 'Unknown'}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Setup expandable rows for requirements table
+        function setupExpandableRows() {
+            const requirementRows = document.querySelectorAll('.requirement-row[data-has-children="true"]');
+            
+            requirementRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const expanded = row.dataset.expanded === 'true';
+                    const level = parseInt(row.dataset.level);
+                    const reqId = row.dataset.reqId;
+                    
+                    // Toggle expansion state
+                    row.dataset.expanded = expanded ? 'false' : 'true';
+                    
+                    // Update expand icon
+                    const expandIcon = row.querySelector('.expand-icon');
+                    expandIcon.textContent = expanded ? '➕' : '➖';
+                    
+                    // Find all child rows and toggle visibility
+                    let currentRow = row.nextElementSibling;
+                    while (currentRow && 
+                           currentRow.classList.contains('requirement-row') && 
+                           parseInt(currentRow.dataset.level) > level) {
+                        
+                        // Only toggle immediate children or already visible rows
+                        if (parseInt(currentRow.dataset.level) === level + 1 ||
+                            currentRow.style.display === 'table-row') {
+                            currentRow.style.display = expanded ? 'none' : 'table-row';
+                            
+                            // If we're collapsing and this row was expanded, collapse it too
+                            if (expanded && 
+                                currentRow.dataset.hasChildren === 'true' && 
+                                currentRow.dataset.expanded === 'true') {
+                                
+                                currentRow.dataset.expanded = 'false';
+                                currentRow.querySelector('.expand-icon').textContent = '➕';
+                            }
+                        }
+                        
+                        currentRow = currentRow.nextElementSibling;
+                    }
+                });
+            });
+        }
+        
+        // Helper function to get badge class for priority levels
+        function getPriorityClass(priority) {
+            if (!priority) return 'light';
+            
+            switch (priority.toLowerCase()) {
+                case 'high':
+                    return 'danger';
+                case 'medium':
+                    return 'warning';
+                case 'low':
+                    return 'success';
+                default:
+                    return 'light';
+            }
+        }
+        
+        // Start the application
+        document.addEventListener('DOMContentLoaded', loadComplianceMatrix);
+    </script>
+</body>
+</html> 
