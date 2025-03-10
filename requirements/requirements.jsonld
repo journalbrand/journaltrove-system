@@ -101,6 +101,15 @@
       "priority": "Medium",
       "component": "System",
       "parent": "System.3"
+    },
+    {
+      "id": "System.4",
+      "type": "Requirement",
+      "name": "System Timekeeping",
+      "description": "The system shall provide accurate current time information upon request",
+      "status": "Draft",
+      "priority": "High",
+      "component": "System"
     }
   ]
 } 
